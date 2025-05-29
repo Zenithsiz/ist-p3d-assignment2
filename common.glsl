@@ -138,10 +138,21 @@ Ray getRay(
 
 	// Calculate eye_offset and ray direction
 
-	vec3 eye_offset = vec3(0.0, 0.0, 0.0);
-	vec3 ray_direction = vec3(1.0, 0.0, 0.0);
+	float d = length(cam.n);
+	float f = d * cam.focusDist;
 
-	return createRay(eye_offset, normalize(ray_direction), time);
+	vec3 p_s = vec3(
+		cam.width * ((pixel_sample.x + 0.5) / iResolution.x - 0.5),
+		cam.height * ((pixel_sample.y + 0.5) / iResolution.y - 0.5),
+		-d
+	);
+
+	vec3 p = p_s * cam.focusDist;
+
+	vec3 eye_offset = cam.eye + ls.x * cam.u + ls.y * cam.v;
+	vec3 ray_dir = (p.x - ls.x) * cam.u + (p.y - ls.y) * cam.v - f * cam.n;
+
+	return createRay(eye_offset, normalize(ray_dir), time);
 }
 
 // MT_ material type
