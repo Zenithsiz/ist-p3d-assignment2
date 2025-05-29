@@ -421,6 +421,9 @@ bool hit_sphere(Sphere s, Ray r, float tmin, float tmax, inout HitRecord rec) {
 	rec.t = t;
 	rec.pos = r.o + r.d * rec.t;
 	rec.normal = normalize(rec.pos - s.center);
+	if (s.radius < 0.0) {
+		rec.normal = -rec.normal;
+	}
 
 	return true;
 }
