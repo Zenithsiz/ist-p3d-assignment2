@@ -216,7 +216,13 @@ vec3 rayColor(Ray r) {
 					continue;
 				}
 
-				// TODO: Shadows?
+				HitRecord lightRec;
+				vec3 lightDir = pl.pos - rec.pos;
+				float lightDist = length(lightDir);
+				Ray lightRay = createRay(rec.pos + rec.normal * epsilon, normalize(lightDir));
+				if (hit_world(lightRay, 0.001, lightDist, lightRec)) {
+					continue;
+				}
 
 				col += directLighting(pl, r, rec) * throughput;
 			}
