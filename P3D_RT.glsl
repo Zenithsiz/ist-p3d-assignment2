@@ -176,15 +176,21 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	return hit;
 }
 
-vec3 directlighting(pointLight pl, Ray r, HitRecord rec) {
-	vec3 diffCol, specCol;
-	vec3 colorOut = vec3(0.0, 0.0, 0.0);
-	float shininess;
-	HitRecord dummy;
+vec3 directLighting(pointLight pl, Ray r, HitRecord rec) {
+	float shininess = 1.0;
 
-	// INSERT YOUR CODE HERE
+	vec3 n = normalize(rec.normal);
+	vec3 hitPoint = rec.pos + n * epsilon;
 
-	return colorOut;
+	vec3 l = normalize(pl.pos - hitPoint);
+
+	vec3 diffCol = rec.material.albedo * 1.0 * max(dot(n, l), 0.0);
+	vec3 h = normalize(l - r.d);
+	vec3 specCol = pl.color * rec.material.emissive * pow(max(dot(h, n), 0.0), shininess);
+
+	vec3 color = diffCol + specCol;
+
+	return color;
 }
 
 #define MAX_BOUNCES 10
