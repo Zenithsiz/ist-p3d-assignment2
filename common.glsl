@@ -282,19 +282,37 @@ Triangle createTriangle(vec3 v0, vec3 v1, vec3 v2) {
 	return t;
 }
 
-bool hit_triangle(Triangle t, Ray r, float tmin, float tmax, out HitRecord rec) {
-	/*
-	//INSERT YOUR CODE HERE
-	//calculate a valid t and normal
-	if(t < tmax && t > tmin)
-	{
-	    rec.t = t;
-	    rec.normal = normal;
-	    rec.pos = pointOnRay(r, rec.t);
-	    return true;
+bool hit_triangle(Triangle tri, Ray r, float tmin, float tmax, inout HitRecord rec) {
+	vec3 edge1 = tri.b - tri.a;
+	vec3 edge2 = tri.c - tri.a;
+	vec3 ray_cross_e2 = cross(r.d, edge2);
+	float det = dot(edge1, ray_cross_e2);
+
+	float inv_det = 1.0 / det;
+	vec3 s = r.o - tri.a;
+	float u = inv_det * dot(s, ray_cross_e2);
+
+	if ((u < 0.0 && abs(u) > epsilon) || (u > 1.0 && abs(u - 1.0) > epsilon)) {
+		return false;
 	}
-	*/
-	return false;
+
+	vec3 s_cross_e1 = cross(s, edge1);
+	float v = inv_det * dot(r.d, s_cross_e1);
+
+	if ((v < 0.0 && abs(v) > epsilon) || (u + v > 1.0 && abs(u + v - 1.0) > epsilon)) {
+		return false;
+	}
+
+	float t = inv_det * dot(edge2, s_cross_e1);
+	if (t < epsilon || t < tmin || t > tmax) {
+		return false;
+	}
+
+	rec.t = t;
+	rec.pos = r.o + rec.t * r.d;
+	rec.normal = normalize(cross(tri.b - tri.a, tri.c - tri.b));
+
+	return true;
 }
 
 struct Quad {
