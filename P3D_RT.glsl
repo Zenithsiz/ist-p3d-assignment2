@@ -100,9 +100,10 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 			}
 		}
 	}
-#elif SCENE ==                                                                                                         \
-	1 // from
-      // https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/
+
+#elif SCENE == 1
+	// from
+	// https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/
 
 	// diffuse floor
 
@@ -199,33 +200,47 @@ vec3 rayColor(Ray r) {
 	HitRecord rec;
 	vec3 col = vec3(0.0);
 	vec3 throughput = vec3(1.0f, 1.0f, 1.0f);
+
+	pointLight lights[] = pointLight[](
+		createPointLight(vec3(-10.0, 15.0, 0.0), vec3(1.0, 1.0, 1.0)),
+		createPointLight(vec3(8.0, 15.0, 3.0), vec3(1.0, 1.0, 1.0)),
+		createPointLight(vec3(1.0, 15.0, -9.0), vec3(1.0, 1.0, 1.0))
+	);
+
 	for (int i = 0; i < MAX_BOUNCES; ++i) {
 		if (hit_world(r, 0.001, 10000.0, rec)) {
-			// calculate direct lighting with 3 white point lights:
-			{
-				// createPointLight(vec3(-10.0, 15.0, 0.0), vec3(1.0, 1.0, 1.0))
-				// createPointLight(vec3(8.0, 15.0, 3.0), vec3(1.0, 1.0, 1.0))
-				// createPointLight(vec3(1.0, 15.0, -9.0), vec3(1.0, 1.0, 1.0))
+			for (int lightIdx = 0; lightIdx < lights.length(); lightIdx++) {
+				pointLight pl = lights[lightIdx];
 
-				// for instance: col +=
-				// directlighting(createPointLight(vec3(-10.0, 15.0, 0.0),
-				// vec3(1.0, 1.0, 1.0)), r, rec) * throughput;
+				if (dot(pl.pos - rec.pos, rec.normal) < 0.0) {
+					continue;
+				}
+
+				// TODO: Shadows?
+
+				col += directLighting(pl, r, rec) * throughput;
 			}
 
 			// calculate secondary ray and update throughput
 			Ray scatterRay;
 			vec3 atten;
-			if (scatter(r, rec, atten, scatterRay)) { //  insert your code here    }
-
-			} else // background
-			{
-				float t = 0.8 * (r.d.y + 1.0);
-				col += throughput * mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+			if (!scatter(r, rec, atten, scatterRay)) {
 				break;
 			}
+
+			r = scatterRay;
+			throughput *= atten;
 		}
-		return col;
+
+		// background
+		else {
+			float t = 0.8 * (r.d.y + 1.0);
+			col += throughput * mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+			break;
+		}
 	}
+
+	return col;
 }
 
 #define MAX_SAMPLES 10000.0
