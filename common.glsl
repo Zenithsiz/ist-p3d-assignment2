@@ -313,14 +313,9 @@ Quad createQuad(vec3 v0, vec3 v1, vec3 v2, vec3 v3) {
 	return q;
 }
 
-bool hit_quad(Quad q, Ray r, float tmin, float tmax, out HitRecord rec) {
-	if (hit_triangle(createTriangle(q.a, q.b, q.c), r, tmin, rec.t, rec)) {
-		return true;
-	} else if (hit_triangle(createTriangle(q.a, q.c, q.d), r, tmin, rec.t, rec)) {
-		return true;
-	} else {
-		return false;
-	}
+bool hit_quad(Quad q, Ray r, float tmin, float tmax, inout HitRecord rec) {
+	return hit_triangle(createTriangle(q.a, q.b, q.c), r, tmin, tmax, rec) ||
+	       hit_triangle(createTriangle(q.a, q.c, q.d), r, tmin, tmax, rec);
 }
 
 struct Sphere {
