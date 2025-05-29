@@ -214,53 +214,72 @@ struct HitRecord {
 };
 
 float schlick(float cosine, float refIdx) {
-	return 0.0;
-	// INSERT YOUR CODE HERE
+	return refIdx + (1.0 - refIdx) * pow(1.0 - cosine, 5.0);
 }
 
 bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 	if (rec.material.type == MT_DIFFUSE) {
+		// TODO: Does a diffuse material have any scatter?
+		return false;
+		/*
 		// INSERT CODE HERE,
 		atten = rec.material.albedo * max(dot(rScattered.d, rec.normal), 0.0) / pi;
 		return true;
+		*/
 	}
 	if (rec.material.type == MT_METAL) {
 		// INSERT CODE HERE, consider fuzzy reflections
 		atten = rec.material.specColor;
+
+		// Reflected direction
+		vec3 incident = -rIn.d;
+		vec3 reflected_dir = 2.0 * dot(incident, rec.normal) * rec.normal - incident;
+
+		// Fuzzy reflections
+		reflected_dir += rec.material.roughness * randomInUnitSphere(gSeed);
+
+		rScattered.o = rec.pos + rec.normal * epsilon;
+		rScattered.d = reflected_dir;
+
 		return true;
 	}
 	if (rec.material.type == MT_DIELECTRIC) {
-		atten = vec3(1.0);
-		vec3 outwardNormal;
-		float niOverNt;
-		float cosine;
+		bool isInside = dot(rIn.d, rec.normal) > 0.0;
+		vec3 n_s = isInside ? -rec.normal : rec.normal;
 
-		if (dot(rIn.d, rec.normal) > 0.0) // hit inside
-		{
-			outwardNormal = -rec.normal;
-			niOverNt = rec.material.refIdx;
-			// cosine = refraction cosine for schlick;
-			// atten = apply Beer's law by using rec.material.refractColor
-		} else // hit from outside
-		{
-			outwardNormal = rec.normal;
-			niOverNt = 1.0 / rec.material.refIdx;
-			cosine = -dot(rIn.d, rec.normal);
+		// TODO: Is this correct? I don't think
+		//       we should assume that it's either the material or air.
+		float n1 = isInside ? rec.material.refIdx : 1.0;
+		float n2 = isInside ? 1.0 : rec.material.refIdx;
+
+		atten = isInside ? exp(-rec.material.refractColor * rec.t) : vec3(1.0);
+
+		vec3 v = -rIn.d;
+		vec3 v_t = dot(v, n_s) * n_s - v;
+		float sin_incident = length(v_t);
+		float cos_incident = -dot(rIn.d, rec.normal);
+		float sin_theta = n1 / n2 * sin_incident;
+
+		float cos_theta = sqrt(1.0 - sin_theta * sin_theta);
+
+		// TODO: Is this the correct argument to pass to schlick?
+		float reflectProb = sin_theta > 1.0 ? 1.0 : schlick(cos_theta, pow((n1 - n2) / (n1 + n2), 2.0));
+
+		// Reflection
+		if (hash1(gSeed) < reflectProb) {
+			vec3 incident = -rIn.d;
+			vec3 reflected_dir = 2.0 * dot(incident, rec.normal) * rec.normal - incident;
+
+			rScattered.o = rec.pos + rec.normal * epsilon;
+			rScattered.d = reflected_dir;
 		}
 
-		// Use probabilistic math to decide if scatter a reflected ray or a
-		// refracted ray
+		// Refraction
+		else {
+			vec3 t = normalize(v_t);
 
-		float reflectProb;
-
-		// if no total reflection  reflectProb = schlick(cosine,
-		// rec.material.refIdx); else reflectProb = 1.0;
-
-		if (hash1(gSeed) < reflectProb) { // Reflection
-										  // rScattered = calculate reflected ray
-
-			// else  //Refraction
-			//  rScattered = calculate refracted ray
+			rScattered.o = rec.pos - n_s * epsilon;
+			rScattered.d = sin_theta * t - cos_theta * n_s;
 		}
 
 		return true;
