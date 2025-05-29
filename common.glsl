@@ -364,23 +364,36 @@ vec3 center(MovingSphere mvsphere, float time) {
  * hit_<type>.
  */
 
-bool hit_sphere(Sphere s, Ray r, float tmin, float tmax, out HitRecord rec) {
-	// INSERT YOUR CODE HERE
-	// calculate a valid t and normal
+bool hit_sphere(Sphere s, Ray r, float tmin, float tmax, inout HitRecord rec) {
+	vec3 offset = r.o - s.center;
 
-	/*
-	if(t < tmax && t > tmin) {
-	    rec.t = t;
-	    rec.pos = pointOnRay(r, rec.t);
-	    rec.normal = normal
-	    return true;
+	float b = dot(offset, r.d);
+	float c = dot(offset, offset) - s.radius * s.radius;
+
+	bool is_outside = c > 0.0;
+
+	if (is_outside && b > 0.0) {
+		return false;
 	}
-	*/
 
-	return false;
+	float disc = b * b - c;
+	if (disc < 0.0) {
+		return false;
+	}
+
+	float t = -b + (is_outside ? -sqrt(disc) : sqrt(disc));
+	if (t < tmin || t > tmax) {
+		return false;
+	}
+
+	rec.t = t;
+	rec.pos = r.o + r.d * rec.t;
+	rec.normal = normalize(rec.pos - s.center);
+
+	return true;
 }
 
-bool hit_movingSphere(MovingSphere s, Ray r, float tmin, float tmax, out HitRecord rec) {
+bool hit_movingSphere(MovingSphere s, Ray r, float tmin, float tmax, inout HitRecord rec) {
 	float B, C, delta;
 	bool outside;
 	float t;
