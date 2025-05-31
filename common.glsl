@@ -383,8 +383,9 @@ MovingSphere createMovingSphere(vec3 center0, vec3 center1, float radius, float 
 	return s;
 }
 
-vec3 center(MovingSphere mvsphere, float time) {
-	vec3 moving_center = vec3(0.0, 0.0, 0.0);
+vec3 movingSphereCenter(MovingSphere s, float time) {
+	float t = (time - s.time0) / (s.time1 - s.time0);
+	vec3 moving_center = mix(s.center0, s.center1, clamp(t, 0.0, 1.0));
 
 	// Program it
 	return moving_center;
@@ -429,22 +430,10 @@ bool hit_sphere(Sphere s, Ray r, float tmin, float tmax, inout HitRecord rec) {
 }
 
 bool hit_movingSphere(MovingSphere s, Ray r, float tmin, float tmax, inout HitRecord rec) {
-	float B, C, delta;
-	bool outside;
-	float t;
+	vec3 center = movingSphereCenter(s, r.t);
+	Sphere sphere = createSphere(center, s.radius);
 
-	// INSERT YOUR CODE HERE
-	// Calculate the moving center
-	// calculate a valid t and normal
-
-	if (t < tmax && t > tmin) {
-		rec.t = t;
-		rec.pos = pointOnRay(r, rec.t);
-		// rec.normal = normal;
-		return true;
-	} else {
-		return false;
-	}
+	return hit_sphere(sphere, r, tmin, tmax, rec);
 }
 
 struct pointLight {
