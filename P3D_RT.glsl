@@ -196,7 +196,7 @@ vec3 directLighting(pointLight pl, Ray r, HitRecord rec) {
 
 #define MAX_BOUNCES 10
 
-vec3 rayColor(Ray r) {
+vec3 rayColor(Camera cam, Ray r) {
 	HitRecord rec;
 	vec3 col = vec3(0.0);
 	vec3 throughput = vec3(1.0f, 1.0f, 1.0f);
@@ -219,7 +219,8 @@ vec3 rayColor(Ray r) {
 				HitRecord lightRec;
 				vec3 lightDir = pl.pos - rec.pos;
 				float lightDist = length(lightDir);
-				Ray lightRay = createRay(rec.pos + rec.normal * epsilon, normalize(lightDir));
+				float time = cam.time0 + hash1(gSeed) * (cam.time1 - cam.time0);
+				Ray lightRay = createRay(rec.pos + rec.normal * epsilon, normalize(lightDir), time);
 				if (hit_world(lightRay, 0.001, lightDist, lightRec)) {
 					continue;
 				}
@@ -284,7 +285,7 @@ void main() {
 
 	vec2 ps = gl_FragCoord.xy + hash2(gSeed);
 	// vec2 ps = gl_FragCoord.xy;
-	vec3 color = rayColor(getRay(cam, ps));
+	vec3 color = rayColor(cam, getRay(cam, ps));
 
 	if (iMouseButton.x != 0.0 || iMouseButton.y != 0.0) {
 		gl_FragColor = vec4(toGamma(color), 1.0); // samples number reset = 1
