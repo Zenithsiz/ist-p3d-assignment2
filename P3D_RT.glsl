@@ -180,7 +180,7 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 vec3 directLighting(pointLight pl, Ray r, HitRecord rec) {
 	float shininess = 1.0;
 
-	vec3 n = normalize(rec.normal);
+	vec3 n = rec.normal;
 	vec3 hitPoint = rec.pos + n * epsilon;
 
 	vec3 l = normalize(pl.pos - hitPoint);
@@ -211,16 +211,18 @@ vec3 rayColor(Camera cam, Ray r) {
 		if (hit_world(r, 0.001, 10000.0, rec)) {
 			for (int lightIdx = 0; lightIdx < lights.length(); lightIdx++) {
 				pointLight pl = lights[lightIdx];
+				vec3 lightDir = pl.pos - rec.pos;
 
-				if (dot(pl.pos - rec.pos, rec.normal) < 0.0) {
+				if (dot(lightDir, rec.normal) < 0.0) {
 					continue;
 				}
 
+				vec3 cameraNormal = dot(r.d, rec.normal) < 0.0 ? rec.normal : -rec.normal;
+
 				HitRecord lightRec;
-				vec3 lightDir = pl.pos - rec.pos;
 				float lightDist = length(lightDir);
 				float time = cam.time0 + hash1(gSeed) * (cam.time1 - cam.time0);
-				Ray lightRay = createRay(rec.pos + rec.normal * epsilon, normalize(lightDir), time);
+				Ray lightRay = createRay(rec.pos + 2.0 * cameraNormal * epsilon, normalize(lightDir), time);
 				if (hit_world(lightRay, 0.001, lightDist, lightRec)) {
 					continue;
 				}
@@ -257,6 +259,7 @@ void main() {
 
 	vec2 mouse = iMouse.xy / iResolution.xy;
 	mouse.x = mouse.x * 2.0 - 1.0;
+	mouse.y = mouse.y * 2.0 - 1.0;
 
 	vec3 camPos = vec3(mouse.x * 10.0, mouse.y * 5.0, 8.0);
 	vec3 camTarget = vec3(0.0, 0.0, -1.0);
