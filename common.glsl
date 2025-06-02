@@ -219,13 +219,14 @@ float schlick(float cosine, float refIdx) {
 
 bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 	if (rec.material.type == MT_DIFFUSE) {
-		// TODO: Does a diffuse material have any scatter?
-		return false;
-		/*
-		// INSERT CODE HERE,
+		rScattered.o = rec.pos + rec.normal * epsilon;
+		rScattered.d = randomInUnitSphere(gSeed);
+		if ( dot(rScattered.d, rIn.d) > 0.0 ) {
+			rScattered.d = -rScattered.d;
+		}
+
 		atten = rec.material.albedo * max(dot(rScattered.d, rec.normal), 0.0) / pi;
 		return true;
-		*/
 	}
 	if (rec.material.type == MT_METAL) {
 		// INSERT CODE HERE, consider fuzzy reflections
