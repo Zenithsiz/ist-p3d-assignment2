@@ -218,36 +218,42 @@ float schlick(float cosine, float refIdx) {
 }
 
 bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
+	bool isInside = dot(rIn.d, rec.normal) > 0.0;
+	vec3 n_s = isInside ? -rec.normal : rec.normal;
+
 	if (rec.material.type == MT_DIFFUSE) {
-		rScattered.o = rec.pos + rec.normal * epsilon;
-		rScattered.d = randomInUnitSphere(gSeed);
-		if ( dot(rScattered.d, rIn.d) > 0.0 ) {
+		rScattered.o = rec.pos + n_s * epsilon;
+
+		rScattered.d = randomUnitVector(gSeed);
+		if (dot(rScattered.d, rec.normal) < 0.0) {
 			rScattered.d = -rScattered.d;
 		}
 
-		atten = rec.material.albedo * max(dot(rScattered.d, rec.normal), 0.0) / pi;
+		vec3 diffCol = rec.material.albedo * max(dot(rScattered.d, rec.normal), 0.0) / pi;
+
+		// Reflected direction
+		vec3 reflected_dir = reflect(-rScattered.d, rec.normal);
+		reflected_dir += rec.material.roughness * randomUnitVector(gSeed);
+		vec3 specCol = rec.material.specColor * pow(max(dot(reflected_dir, -rIn.d), 0.0), 5.0);
+
+		atten = diffCol + specCol;
 		return true;
 	}
 	if (rec.material.type == MT_METAL) {
-		// INSERT CODE HERE, consider fuzzy reflections
 		atten = rec.material.specColor;
 
 		// Reflected direction
-		vec3 incident = -rIn.d;
-		vec3 reflected_dir = 2.0 * dot(incident, rec.normal) * rec.normal - incident;
+		vec3 reflected_dir = reflect(rIn.d, rec.normal);
 
 		// Fuzzy reflections
-		reflected_dir += rec.material.roughness * randomInUnitSphere(gSeed);
+		reflected_dir += rec.material.roughness * randomUnitVector(gSeed);
 
-		rScattered.o = rec.pos + rec.normal * epsilon;
-		rScattered.d = reflected_dir;
+		rScattered.o = rec.pos + n_s * epsilon;
+		rScattered.d = normalize(reflected_dir);
 
 		return true;
 	}
 	if (rec.material.type == MT_DIELECTRIC) {
-		bool isInside = dot(rIn.d, rec.normal) > 0.0;
-		vec3 n_s = isInside ? -rec.normal : rec.normal;
-
 		// TODO: Is this correct? I don't think
 		//       we should assume that it's either the material or air.
 		float n1 = isInside ? rec.material.refIdx : 1.0;
@@ -268,8 +274,7 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 
 		// Reflection
 		if (hash1(gSeed) < reflectProb) {
-			vec3 incident = -rIn.d;
-			vec3 reflected_dir = 2.0 * dot(incident, rec.normal) * rec.normal - incident;
+			vec3 reflected_dir = reflect(rIn.d, rec.normal);
 
 			rScattered.o = rec.pos + rec.normal * epsilon;
 			rScattered.d = reflected_dir;

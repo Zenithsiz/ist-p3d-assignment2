@@ -7,13 +7,31 @@
 #include "./common.glsl"
 #iChannel0 "self"
 
-#define SCENE 0
+#define SCENE 2
 
 bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	bool hit = false;
 	rec.t = tmax;
 
 #if SCENE == 0 // Shirley Weekend scene
+	// Light up in the sky
+	// TODO: Use a point light here once we
+	//       can efficiently use those.
+	float lightSize = 1.5;
+	vec3 lightOffset = vec3(0.0, 5.0, 0.0);
+	if (hit_quad(
+			createQuad(
+				vec3(lightOffset.x - lightSize, lightOffset.y, lightOffset.z + lightSize),
+				vec3(lightOffset.x - lightSize, lightOffset.y, lightOffset.z - lightSize),
+				vec3(lightOffset.x + lightSize, lightOffset.y, lightOffset.z - lightSize),
+				vec3(lightOffset.x + lightSize, lightOffset.y, lightOffset.z + lightSize)
+			),
+			r, tmin, rec.t, rec
+	)) {
+		hit = true;
+		rec.material = createDiffuseMaterial(vec3(0.0));
+		rec.material.emissive = vec3(1.0f, 1.0f, 1.0f) * 50.0f;
+	}
 
 	if (hit_quad(
 			createQuad(
@@ -171,25 +189,136 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	}
 
 #elif SCENE == 2
+	float wall_pos = 4.0;
+	float wall_height = 6.0;
+
+	// Bottom
+	if (hit_quad(
+			createQuad(
+				vec3(-wall_pos, 0.0,  wall_pos),
+				vec3( wall_pos, 0.0,  wall_pos),
+				vec3( wall_pos, 0.0, -wall_pos),
+				vec3(-wall_pos, 0.0, -wall_pos)
+			),
+			r,
+			tmin,
+			rec.t,
+			rec
+		)) {
+		hit = true;
+		rec.material = createDiffuseMaterial(vec3(1.0));
+	}
+
+	// Top
+	if (hit_quad(
+			createQuad(
+				vec3( wall_pos, wall_height, -wall_pos),
+				vec3( wall_pos, wall_height,  wall_pos),
+				vec3(-wall_pos, wall_height,  wall_pos),
+				vec3(-wall_pos, wall_height, -wall_pos)
+			),
+			r,
+			tmin,
+			rec.t,
+			rec
+		)) {
+		hit = true;
+		rec.material = createDiffuseMaterial(vec3(1.0));
+	}
+
+	// Left
+	if (hit_quad(
+			createQuad(
+				vec3(-wall_pos, wall_height,  wall_pos),
+				vec3(-wall_pos, 0.0        ,  wall_pos),
+				vec3(-wall_pos, 0.0        , -wall_pos),
+				vec3(-wall_pos, wall_height, -wall_pos)
+			),
+			r,
+			tmin,
+			rec.t,
+			rec
+		)) {
+		hit = true;
+		rec.material = createDiffuseMaterial(vec3(0.9, 0.1, 0.1));
+	}
+
+	// Right
+	if (hit_quad(
+			createQuad(
+				vec3(wall_pos, 0.0        ,  wall_pos),
+				vec3(wall_pos, wall_height,  wall_pos),
+				vec3(wall_pos, wall_height, -wall_pos),
+				vec3(wall_pos, 0.0        , -wall_pos)
+			),
+			r,
+			tmin,
+			rec.t,
+			rec
+		)) {
+		hit = true;
+		rec.material = createDiffuseMaterial(vec3(0.1, 0.9, 0.1));
+	}
+
+	// Back
+	if (hit_quad(
+			createQuad(
+				vec3( wall_pos, 0.0        , -wall_pos),
+				vec3( wall_pos, wall_height, -wall_pos),
+				vec3(-wall_pos, wall_height, -wall_pos),
+				vec3(-wall_pos, 0.0        , -wall_pos)
+			),
+			r,
+			tmin,
+			rec.t,
+			rec
+		)) {
+		hit = true;
+		rec.material = createDiffuseMaterial(vec3(1.0));
+	}
+
+	// Light
+	float lightSize = 2.0;
+	if (hit_quad(
+			createQuad(
+				vec3(-lightSize, wall_height - 0.05,  lightSize),
+				vec3(-lightSize, wall_height - 0.05, -lightSize),
+				vec3( lightSize, wall_height - 0.05, -lightSize),
+				vec3( lightSize, wall_height - 0.05,  lightSize)
+			),
+			r, tmin, rec.t, rec
+	)) {
+		hit = true;
+		rec.material = createDiffuseMaterial(vec3(0.0));
+		rec.material.emissive = vec3(1.0f, 1.0f, 1.0f) * 20.0f;
+	}
+
+	if (hit_sphere(createSphere(vec3(-2.0, 1.5, -1.5), 1.5), r, tmin, rec.t, rec)) {
+		hit = true;
+		rec.material = createDiffuseMaterial(vec3(0.1, 0.1, 0.9));
+		rec.material.specColor = vec3(0.05);
+	}
+
+	if (hit_sphere(createSphere(vec3(2.0, 1.5, -1.5), 1.5), r, tmin, rec.t, rec)) {
+		hit = true;
+		rec.material = createMetalMaterial(vec3(0.7, 0.6, 0.5), 0.0);
+	}
+
 #elif SCENE == 3
 #endif
 
 	return hit;
 }
 
-vec3 directLighting(pointLight pl, Ray r, HitRecord rec) {
-	float shininess = 1.0;
-
+vec3 directLighting(Ray r, HitRecord rec) {
 	vec3 n = rec.normal;
 	vec3 hitPoint = rec.pos + n * epsilon;
 
-	vec3 l = normalize(pl.pos - hitPoint);
+	if ( dot(r.d, n) > 0.0 ) {
+		return vec3(0.0);
+	}
 
-	vec3 diffCol = rec.material.albedo * 1.0 * max(dot(n, l), 0.0);
-	vec3 h = normalize(l - r.d);
-	vec3 specCol = pl.color * rec.material.emissive * pow(max(dot(h, n), 0.0), shininess);
-
-	vec3 color = diffCol + specCol;
+	vec3 color = rec.material.emissive;
 
 	return color;
 }
@@ -201,34 +330,9 @@ vec3 rayColor(Camera cam, Ray r) {
 	vec3 col = vec3(0.0);
 	vec3 throughput = vec3(1.0f, 1.0f, 1.0f);
 
-	pointLight lights[] = pointLight[](
-		createPointLight(vec3(-10.0, 15.0, 0.0), vec3(1.0, 1.0, 1.0)),
-		createPointLight(vec3(8.0, 15.0, 3.0), vec3(1.0, 1.0, 1.0)),
-		createPointLight(vec3(1.0, 15.0, -9.0), vec3(1.0, 1.0, 1.0))
-	);
-
 	for (int i = 0; i < MAX_BOUNCES; ++i) {
 		if (hit_world(r, 0.001, 10000.0, rec)) {
-			for (int lightIdx = 0; lightIdx < lights.length(); lightIdx++) {
-				pointLight pl = lights[lightIdx];
-				vec3 lightDir = pl.pos - rec.pos;
-
-				if (dot(lightDir, rec.normal) < 0.0) {
-					continue;
-				}
-
-				vec3 cameraNormal = dot(r.d, rec.normal) < 0.0 ? rec.normal : -rec.normal;
-
-				HitRecord lightRec;
-				float lightDist = length(lightDir);
-				float time = cam.time0 + hash1(gSeed) * (cam.time1 - cam.time0);
-				Ray lightRay = createRay(rec.pos + 2.0 * cameraNormal * epsilon, normalize(lightDir), time);
-				if (hit_world(lightRay, 0.001, lightDist, lightRec)) {
-					continue;
-				}
-
-				col += directLighting(pl, r, rec) * throughput;
-			}
+			col += directLighting(r, rec) * throughput;
 
 			// calculate secondary ray and update throughput
 			Ray scatterRay;
@@ -243,8 +347,10 @@ vec3 rayColor(Camera cam, Ray r) {
 
 		// background
 		else {
-			float t = 0.8 * (r.d.y + 1.0);
-			col += throughput * mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+			#if SCENE == 0 || SCENE == 1
+				float t = 0.8 * (r.d.y + 1.0);
+				col += throughput * mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+			#endif
 			break;
 		}
 	}
