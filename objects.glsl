@@ -12,6 +12,9 @@ struct HitRecord {
 	vec3 normal;
 	float t; // ray parameter
 	Material material;
+
+	// Object-local hit coordinates
+	vec2 coord;
 };
 
 struct Triangle {
@@ -49,6 +52,7 @@ bool hit_triangle(Triangle tri, Ray r, float tmin, float tmax, inout HitRecord r
 	rec.t = t;
 	rec.pos = r.o + rec.t * r.d;
 	rec.normal = normalize(cross(tri.b - tri.a, tri.c - tri.b));
+	rec.coord = vec2(u, v);
 
 	return true;
 }
@@ -61,8 +65,15 @@ struct Quad {
 };
 
 bool hit_quad(Quad q, Ray r, float tmin, float tmax, inout HitRecord rec) {
-	return hit_triangle(Triangle(q.a, q.b, q.c), r, tmin, tmax, rec) ||
-	       hit_triangle(Triangle(q.a, q.c, q.d), r, tmin, tmax, rec);
+	if (hit_triangle(Triangle(q.a, q.b, q.c), r, tmin, tmax, rec)) {
+		rec.coord.x += rec.coord.y;
+		return true;
+	} else if (hit_triangle(Triangle(q.a, q.c, q.d), r, tmin, tmax, rec)) {
+		rec.coord.y += rec.coord.x;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 vec3 quadRandPoint(Quad q, inout float seed) {
