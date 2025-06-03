@@ -3,7 +3,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#define SCENE 2
+#define SCENE 0
 
 #if SCENE == 0
 	#include "scenes/shirley_weekend.glsl"

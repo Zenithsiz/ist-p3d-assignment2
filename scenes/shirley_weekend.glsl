@@ -2,30 +2,39 @@
 
 #include "objects.glsl"
 
+const vec3 worldLightsPos[] = vec3[](vec3(-10.0, 15.0, 0.0), vec3(8.0, 15.0, 3.0), vec3(1.0, 15.0, -9.0));
+const Quad worldLights[] = Quad[](
+	Quad(
+		vec3(worldLightsPos[0].x + epsilon, worldLightsPos[0].y, worldLightsPos[0].z - epsilon),
+		vec3(worldLightsPos[0].x + epsilon, worldLightsPos[0].y, worldLightsPos[0].z + epsilon),
+		vec3(worldLightsPos[0].x - epsilon, worldLightsPos[0].y, worldLightsPos[0].z + epsilon),
+		vec3(worldLightsPos[0].x - epsilon, worldLightsPos[0].y, worldLightsPos[0].z - epsilon)
+	),
+	Quad(
+		vec3(worldLightsPos[1].x + epsilon, worldLightsPos[1].y, worldLightsPos[1].z - epsilon),
+		vec3(worldLightsPos[1].x + epsilon, worldLightsPos[1].y, worldLightsPos[1].z + epsilon),
+		vec3(worldLightsPos[1].x - epsilon, worldLightsPos[1].y, worldLightsPos[1].z + epsilon),
+		vec3(worldLightsPos[1].x - epsilon, worldLightsPos[1].y, worldLightsPos[1].z - epsilon)
+	),
+	Quad(
+		vec3(worldLightsPos[2].x + epsilon, worldLightsPos[2].y, worldLightsPos[2].z - epsilon),
+		vec3(worldLightsPos[2].x + epsilon, worldLightsPos[2].y, worldLightsPos[2].z + epsilon),
+		vec3(worldLightsPos[2].x - epsilon, worldLightsPos[2].y, worldLightsPos[2].z + epsilon),
+		vec3(worldLightsPos[2].x - epsilon, worldLightsPos[2].y, worldLightsPos[2].z - epsilon)
+	)
+);
+
 bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	bool hit = false;
 	rec.t = tmax;
 
-	// Light up in the sky
-	// TODO: Use a point light here once we
-	//       can efficiently use those.
-	float lightSize = 1.5;
-	vec3 lightOffset = vec3(0.0, 5.0, 0.0);
-	if (hit_quad(
-			Quad(
-				vec3(lightOffset.x - lightSize, lightOffset.y, lightOffset.z + lightSize),
-				vec3(lightOffset.x - lightSize, lightOffset.y, lightOffset.z - lightSize),
-				vec3(lightOffset.x + lightSize, lightOffset.y, lightOffset.z - lightSize),
-				vec3(lightOffset.x + lightSize, lightOffset.y, lightOffset.z + lightSize)
-			),
-			r,
-			tmin,
-			rec.t,
-			rec
-		)) {
-		hit = true;
-		rec.material = createDiffuseMaterial(vec3(0.0));
-		rec.material.emissive = vec3(1.0f, 1.0f, 1.0f) * 50.0f;
+	// Lights
+	for (int lightIdx = 0; lightIdx < worldLights.length(); lightIdx++) {
+		if (hit_quad(worldLights[lightIdx], r, tmin, rec.t, rec)) {
+			hit = true;
+			rec.material = createDiffuseMaterial(vec3(0.0));
+			rec.material.emissive = vec3(1.0f, 1.0f, 1.0f);
+		}
 	}
 
 	if (hit_quad(
@@ -44,7 +53,7 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	if (hit_sphere(Sphere(vec3(-4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDiffuseMaterial(vec3(0.2, 0.95, 0.1));
-		// rec.material = createDiffuseMaterial(vec3(0.4, 0.2, 0.1));
+		rec.material.specColor = vec3(0.04);
 	}
 
 	if (hit_sphere(Sphere(vec3(4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
