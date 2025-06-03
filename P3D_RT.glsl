@@ -5,6 +5,8 @@
  */
 
 #include "./common.glsl"
+#include "./rand.glsl"
+
 #iChannel0 "self"
 
 #define SCENE 2
