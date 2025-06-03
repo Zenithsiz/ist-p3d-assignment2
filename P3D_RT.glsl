@@ -10,6 +10,8 @@
 #iChannel0 "self"
 
 vec3 directLighting(Ray r, HitRecord rec) {
+	vec3 col = vec3(0.0, 0.0, 0.0);
+
 	vec3 n = rec.normal;
 	vec3 hitPoint = rec.pos + n * epsilon;
 
@@ -17,9 +19,32 @@ vec3 directLighting(Ray r, HitRecord rec) {
 		return vec3(0.0);
 	}
 
-	vec3 color = rec.material.emissive;
+	// TODO: We need to iterate over all lights in the scene, and choose
+	//       a random point within each quad light instead of the center.
+	vec3 lightPos = vec3(0.0, 6.0 - 0.05 + 1.0 * epsilon, 0.0);
 
-	return color;
+	vec3 hitPos = rec.pos + n * epsilon;
+	float lightDist = length(lightPos - hitPos);
+	vec3 l = normalize(lightPos - hitPos);
+
+	// If we hit the light, color it
+	Ray lightRay = createRay(hitPos, l);
+	HitRecord lightRec;
+	if (hit_world(lightRay, 0.001, lightDist, lightRec) && lightRec.material.emissive != vec3(0.0)) {
+		vec3 diffCol = rec.material.albedo * max(dot(l, n), 0.0) / pi;
+		col += diffCol;
+
+		// Reflected direction
+		vec3 reflected_dir = reflect(-l, n);
+		reflected_dir += rec.material.roughness * randomUnitVector(gSeed);
+		vec3 specCol =
+			lightRec.material.emissive * rec.material.specColor * pow(max(dot(reflected_dir, -r.d), 0.0), 5.0);
+		col += specCol;
+	}
+
+	col += rec.material.emissive;
+
+	return col;
 }
 
 #define MAX_BOUNCES 10

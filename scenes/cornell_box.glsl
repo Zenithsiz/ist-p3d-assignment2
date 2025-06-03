@@ -110,7 +110,7 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		)) {
 		hit = true;
 		rec.material = createDiffuseMaterial(vec3(0.0));
-		rec.material.emissive = vec3(1.0f, 1.0f, 1.0f) * 20.0f;
+		rec.material.emissive = vec3(1.0f, 1.0f, 0.0f) * 5.0;
 	}
 
 	if (hit_sphere(Sphere(vec3(-2.0, 1.5, -1.5), 1.5), r, tmin, rec.t, rec)) {
