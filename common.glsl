@@ -299,14 +299,6 @@ struct Triangle {
 	vec3 c;
 };
 
-Triangle createTriangle(vec3 v0, vec3 v1, vec3 v2) {
-	Triangle t;
-	t.a = v0;
-	t.b = v1;
-	t.c = v2;
-	return t;
-}
-
 bool hit_triangle(Triangle tri, Ray r, float tmin, float tmax, inout HitRecord rec) {
 	vec3 edge1 = tri.b - tri.a;
 	vec3 edge2 = tri.c - tri.a;
@@ -347,18 +339,9 @@ struct Quad {
 	vec3 d;
 };
 
-Quad createQuad(vec3 v0, vec3 v1, vec3 v2, vec3 v3) {
-	Quad q;
-	q.a = v0;
-	q.b = v1;
-	q.c = v2;
-	q.d = v3;
-	return q;
-}
-
 bool hit_quad(Quad q, Ray r, float tmin, float tmax, inout HitRecord rec) {
-	return hit_triangle(createTriangle(q.a, q.b, q.c), r, tmin, tmax, rec) ||
-	       hit_triangle(createTriangle(q.a, q.c, q.d), r, tmin, tmax, rec);
+	return hit_triangle(Triangle(q.a, q.b, q.c), r, tmin, tmax, rec) ||
+	       hit_triangle(Triangle(q.a, q.c, q.d), r, tmin, tmax, rec);
 }
 
 struct Sphere {
@@ -366,28 +349,11 @@ struct Sphere {
 	float radius;
 };
 
-Sphere createSphere(vec3 center, float radius) {
-	Sphere s;
-	s.center = center;
-	s.radius = radius;
-	return s;
-}
-
 struct MovingSphere {
 	vec3 center0, center1;
 	float radius;
 	float time0, time1;
 };
-
-MovingSphere createMovingSphere(vec3 center0, vec3 center1, float radius, float time0, float time1) {
-	MovingSphere s;
-	s.center0 = center0;
-	s.center1 = center1;
-	s.radius = radius;
-	s.time0 = time0;
-	s.time1 = time1;
-	return s;
-}
 
 vec3 movingSphereCenter(MovingSphere s, float time) {
 	float t = (time - s.time0) / (s.time1 - s.time0);
@@ -437,7 +403,7 @@ bool hit_sphere(Sphere s, Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 bool hit_movingSphere(MovingSphere s, Ray r, float tmin, float tmax, inout HitRecord rec) {
 	vec3 center = movingSphereCenter(s, r.t);
-	Sphere sphere = createSphere(center, s.radius);
+	Sphere sphere = Sphere(center, s.radius);
 
 	return hit_sphere(sphere, r, tmin, tmax, rec);
 }

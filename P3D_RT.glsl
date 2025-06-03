@@ -20,21 +20,24 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	float lightSize = 1.5;
 	vec3 lightOffset = vec3(0.0, 5.0, 0.0);
 	if (hit_quad(
-			createQuad(
+			Quad(
 				vec3(lightOffset.x - lightSize, lightOffset.y, lightOffset.z + lightSize),
 				vec3(lightOffset.x - lightSize, lightOffset.y, lightOffset.z - lightSize),
 				vec3(lightOffset.x + lightSize, lightOffset.y, lightOffset.z - lightSize),
 				vec3(lightOffset.x + lightSize, lightOffset.y, lightOffset.z + lightSize)
 			),
-			r, tmin, rec.t, rec
-	)) {
+			r,
+			tmin,
+			rec.t,
+			rec
+		)) {
 		hit = true;
 		rec.material = createDiffuseMaterial(vec3(0.0));
 		rec.material.emissive = vec3(1.0f, 1.0f, 1.0f) * 50.0f;
 	}
 
 	if (hit_quad(
-			createQuad(
+			Quad(
 				vec3(-10.0, -0.05, 10.0), vec3(10.0, -0.05, 10.0), vec3(10.0, -0.05, -10.0), vec3(-10.0, -0.05, -10.0)
 			),
 			r,
@@ -46,28 +49,28 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		rec.material = createDiffuseMaterial(vec3(0.2));
 	}
 
-	if (hit_sphere(createSphere(vec3(-4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
+	if (hit_sphere(Sphere(vec3(-4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDiffuseMaterial(vec3(0.2, 0.95, 0.1));
 		// rec.material = createDiffuseMaterial(vec3(0.4, 0.2, 0.1));
 	}
 
-	if (hit_sphere(createSphere(vec3(4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
+	if (hit_sphere(Sphere(vec3(4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createMetalMaterial(vec3(0.7, 0.6, 0.5), 0.0);
 	}
 
-	if (hit_sphere(createSphere(vec3(-1.5, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
+	if (hit_sphere(Sphere(vec3(-1.5, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDielectricMaterial(vec3(0.0), 1.33, 0.0);
 	}
 
-	if (hit_sphere(createSphere(vec3(-1.5, 1.0, 0.0), -0.5), r, tmin, rec.t, rec)) {
+	if (hit_sphere(Sphere(vec3(-1.5, 1.0, 0.0), -0.5), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDielectricMaterial(vec3(0.0), 1.33, 0.0);
 	}
 
-	if (hit_sphere(createSphere(vec3(1.5, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
+	if (hit_sphere(Sphere(vec3(1.5, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDielectricMaterial(vec3(0.0, 0.9, 0.9), 1.5, 0.0);
 	}
@@ -92,25 +95,25 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 					}
 				} else if (chooseMaterial < 0.5) {
 					// diffuse
-					if (hit_sphere(createSphere(center, 0.2), r, tmin, rec.t, rec)) {
+					if (hit_sphere(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
 						hit = true;
 						rec.material = createDiffuseMaterial(hash3(seed) * hash3(seed));
 					}
 				} else if (chooseMaterial < 0.7) {
 					// metal
-					if (hit_sphere(createSphere(center, 0.2), r, tmin, rec.t, rec)) {
+					if (hit_sphere(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
 						hit = true;
 						rec.material = createMetalMaterial((hash3(seed) + 1.0) * 0.5, 0.0);
 					}
 				} else if (chooseMaterial < 0.9) {
 					// metal
-					if (hit_sphere(createSphere(center, 0.2), r, tmin, rec.t, rec)) {
+					if (hit_sphere(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
 						hit = true;
 						rec.material = createMetalMaterial((hash3(seed) + 1.0) * 0.5, hash1(seed));
 					}
 				} else {
 					// glass (Dielectric)
-					if (hit_sphere(createSphere(center, 0.2), r, tmin, rec.t, rec)) {
+					if (hit_sphere(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
 						hit = true;
 						rec.material = createDielectricMaterial(hash3(seed), 1.33, 0.0);
 					}
@@ -130,7 +133,7 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	vec3 C = vec3(25.0f, -12.5f, -5.0f);
 	vec3 D = vec3(-25.0f, -12.5f, -5.0f);
 
-	if (hit_quad(createQuad(A, B, C, D), r, tmin, rec.t, rec)) {
+	if (hit_quad(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDiffuseMaterial(vec3(0.7));
 	}
@@ -142,7 +145,7 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		vec3 C = vec3(25.0f, -1.5f, -5.0f);
 		vec3 D = vec3(-25.0f, -1.5f, -5.0f);
 
-		if (hit_quad(createQuad(A, B, C, D), r, tmin, rec.t, rec)) {
+		if (hit_quad(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
 			hit = true;
 			float shade = floor(mod(rec.pos.x, 1.0f) * 2.0f);
 			rec.material = createDiffuseMaterial(vec3(shade));
@@ -157,7 +160,7 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		vec3 C = vec3(7.5f, 12.5f, -5.0f);
 		vec3 D = vec3(-7.5f, 12.5f, -5.0f);
 
-		if (hit_quad(createQuad(A, B, C, D), r, tmin, rec.t, rec)) {
+		if (hit_quad(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
 			hit = true;
 			rec.material = createDiffuseMaterial(vec3(0.7));
 		}
@@ -171,7 +174,7 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		vec3 C = vec3(5.0f, 12.3f, -2.5f);
 		vec3 D = vec3(-5.0f, 12.3f, -2.5f);
 
-		if (hit_quad(createQuad(A, B, C, D), r, tmin, rec.t, rec)) {
+		if (hit_quad(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
 			hit = true;
 			rec.material = createDiffuseMaterial(vec3(0.0));
 			rec.material.emissive = vec3(1.0f, 0.9f, 0.9f) * 20.0f;
@@ -181,7 +184,7 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	const int c_numSpheres = 7;
 	for (int sphereIndex = 0; sphereIndex < c_numSpheres; ++sphereIndex) {
 		vec3 center = vec3(-18.0 + 6.0 * float(sphereIndex), -8.0, 0.0);
-		if (hit_sphere(createSphere(center, 2.8), r, tmin, rec.t, rec)) {
+		if (hit_sphere(Sphere(center, 2.8), r, tmin, rec.t, rec)) {
 			hit = true;
 			float r = float(sphereIndex) / float(c_numSpheres - 1) * 0.1f;
 			rec.material = createDielectricMaterial(vec3(0.0, 0.5, 1.0), 1.1, r);
@@ -194,10 +197,10 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	// Bottom
 	if (hit_quad(
-			createQuad(
-				vec3(-wall_pos, 0.0,  wall_pos),
-				vec3( wall_pos, 0.0,  wall_pos),
-				vec3( wall_pos, 0.0, -wall_pos),
+			Quad(
+				vec3(-wall_pos, 0.0, wall_pos),
+				vec3(wall_pos, 0.0, wall_pos),
+				vec3(wall_pos, 0.0, -wall_pos),
 				vec3(-wall_pos, 0.0, -wall_pos)
 			),
 			r,
@@ -211,10 +214,10 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	// Top
 	if (hit_quad(
-			createQuad(
-				vec3( wall_pos, wall_height, -wall_pos),
-				vec3( wall_pos, wall_height,  wall_pos),
-				vec3(-wall_pos, wall_height,  wall_pos),
+			Quad(
+				vec3(wall_pos, wall_height, -wall_pos),
+				vec3(wall_pos, wall_height, wall_pos),
+				vec3(-wall_pos, wall_height, wall_pos),
 				vec3(-wall_pos, wall_height, -wall_pos)
 			),
 			r,
@@ -228,10 +231,10 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	// Left
 	if (hit_quad(
-			createQuad(
-				vec3(-wall_pos, wall_height,  wall_pos),
-				vec3(-wall_pos, 0.0        ,  wall_pos),
-				vec3(-wall_pos, 0.0        , -wall_pos),
+			Quad(
+				vec3(-wall_pos, wall_height, wall_pos),
+				vec3(-wall_pos, 0.0, wall_pos),
+				vec3(-wall_pos, 0.0, -wall_pos),
 				vec3(-wall_pos, wall_height, -wall_pos)
 			),
 			r,
@@ -245,11 +248,11 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	// Right
 	if (hit_quad(
-			createQuad(
-				vec3(wall_pos, 0.0        ,  wall_pos),
-				vec3(wall_pos, wall_height,  wall_pos),
+			Quad(
+				vec3(wall_pos, 0.0, wall_pos),
+				vec3(wall_pos, wall_height, wall_pos),
 				vec3(wall_pos, wall_height, -wall_pos),
-				vec3(wall_pos, 0.0        , -wall_pos)
+				vec3(wall_pos, 0.0, -wall_pos)
 			),
 			r,
 			tmin,
@@ -262,11 +265,11 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	// Back
 	if (hit_quad(
-			createQuad(
-				vec3( wall_pos, 0.0        , -wall_pos),
-				vec3( wall_pos, wall_height, -wall_pos),
+			Quad(
+				vec3(wall_pos, 0.0, -wall_pos),
+				vec3(wall_pos, wall_height, -wall_pos),
 				vec3(-wall_pos, wall_height, -wall_pos),
-				vec3(-wall_pos, 0.0        , -wall_pos)
+				vec3(-wall_pos, 0.0, -wall_pos)
 			),
 			r,
 			tmin,
@@ -280,26 +283,29 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	// Light
 	float lightSize = 2.0;
 	if (hit_quad(
-			createQuad(
-				vec3(-lightSize, wall_height - 0.05,  lightSize),
+			Quad(
+				vec3(-lightSize, wall_height - 0.05, lightSize),
 				vec3(-lightSize, wall_height - 0.05, -lightSize),
-				vec3( lightSize, wall_height - 0.05, -lightSize),
-				vec3( lightSize, wall_height - 0.05,  lightSize)
+				vec3(lightSize, wall_height - 0.05, -lightSize),
+				vec3(lightSize, wall_height - 0.05, lightSize)
 			),
-			r, tmin, rec.t, rec
-	)) {
+			r,
+			tmin,
+			rec.t,
+			rec
+		)) {
 		hit = true;
 		rec.material = createDiffuseMaterial(vec3(0.0));
 		rec.material.emissive = vec3(1.0f, 1.0f, 1.0f) * 20.0f;
 	}
 
-	if (hit_sphere(createSphere(vec3(-2.0, 1.5, -1.5), 1.5), r, tmin, rec.t, rec)) {
+	if (hit_sphere(Sphere(vec3(-2.0, 1.5, -1.5), 1.5), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDiffuseMaterial(vec3(0.1, 0.1, 0.9));
 		rec.material.specColor = vec3(0.05);
 	}
 
-	if (hit_sphere(createSphere(vec3(2.0, 1.5, -1.5), 1.5), r, tmin, rec.t, rec)) {
+	if (hit_sphere(Sphere(vec3(2.0, 1.5, -1.5), 1.5), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createMetalMaterial(vec3(0.7, 0.6, 0.5), 0.0);
 	}
@@ -314,7 +320,7 @@ vec3 directLighting(Ray r, HitRecord rec) {
 	vec3 n = rec.normal;
 	vec3 hitPoint = rec.pos + n * epsilon;
 
-	if ( dot(r.d, n) > 0.0 ) {
+	if (dot(r.d, n) > 0.0) {
 		return vec3(0.0);
 	}
 
@@ -347,10 +353,10 @@ vec3 rayColor(Camera cam, Ray r) {
 
 		// background
 		else {
-			#if SCENE == 0 || SCENE == 1
-				float t = 0.8 * (r.d.y + 1.0);
-				col += throughput * mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
-			#endif
+#if SCENE == 0 || SCENE == 1
+			float t = 0.8 * (r.d.y + 1.0);
+			col += throughput * mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+#endif
 			break;
 		}
 	}
