@@ -1,9 +1,10 @@
 //! Objects
+
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include "./camera.glsl"
-#include "./material.glsl"
+#include "camera.glsl"
+#include "material.glsl"
 
 struct HitRecord {
 	vec3 pos;

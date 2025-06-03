@@ -1,14 +1,10 @@
-/**
- * ver hash functions em
- * https://www.shadertoy.com/view/XlGcRh hash functions GPU
- * http://www.jcgt.org/published/0009/03/02/
- */
+//! P3D - Ray-tracer
 
-#include "./camera.glsl"
-#include "./material.glsl"
-#include "./objects.glsl"
-#include "./rand.glsl"
-#include "./scatter.glsl"
+#include "camera.glsl"
+#include "material.glsl"
+#include "objects.glsl"
+#include "rand.glsl"
+#include "scatter.glsl"
 
 #iChannel0 "self"
 

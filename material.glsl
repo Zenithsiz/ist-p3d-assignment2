@@ -1,6 +1,8 @@
 //! Material definition
+
 #ifndef MATERIAL_H
 #define MATERIAL_H
+
 // MT_ material type
 #define MT_DIFFUSE 0
 #define MT_METAL 1

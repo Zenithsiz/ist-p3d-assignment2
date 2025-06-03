@@ -1,11 +1,12 @@
 //! Scatter
+
 #ifndef SCATTER_H
 #define SCATTER_H
 
-#include "./camera.glsl"
-#include "./material.glsl"
-#include "./objects.glsl"
-#include "./rand.glsl"
+#include "camera.glsl"
+#include "material.glsl"
+#include "objects.glsl"
+#include "rand.glsl"
 
 float schlick(float cosine, float refIdx) {
 	return refIdx + (1.0 - refIdx) * pow(1.0 - cosine, 5.0);
