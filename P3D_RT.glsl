@@ -60,6 +60,15 @@ vec3 rayColor(Camera cam, Ray r) {
 #define MAX_SAMPLES 10000.0
 
 void main() {
+	vec4 prev = texture(iChannel0, gl_FragCoord.xy / iResolution.xy);
+	vec3 prevLinear = toLinear(prev.xyz);
+
+	// If we're done rendering and the user isn't moving around, skip everything else
+	if (prev.w > MAX_SAMPLES && iMouseButton.x == 0.0) {
+		gl_FragColor = prev;
+		return;
+	}
+
 	gSeed = float(baseHash(floatBitsToUint(gl_FragCoord.xy))) / float(0xffffffffU) + iTime;
 
 	vec2 mouse = iMouse.xy / iResolution.xy;
@@ -85,26 +94,18 @@ void main() {
 		time1
 	);
 
-	// usa-se o 4 canal de cor para guardar o numero de samples e não o iFrame
-	// pois quando se mexe o rato faz-se reset
-
-	vec4 prev = texture(iChannel0, gl_FragCoord.xy / iResolution.xy);
-	vec3 prevLinear = toLinear(prev.xyz);
-
 	vec2 ps = gl_FragCoord.xy + hash2(gSeed);
-	// vec2 ps = gl_FragCoord.xy;
 	vec3 color = rayColor(cam, getRay(cam, ps));
 
-	if (iMouseButton.x != 0.0 || iMouseButton.y != 0.0) {
-		gl_FragColor = vec4(toGamma(color), 1.0); // samples number reset = 1
-		return;
-	}
-	if (prev.w > MAX_SAMPLES) {
-		gl_FragColor = prev;
-		return;
+	// If the user just pressed the mouse, reset the scene to this color
+	if (iMouseButton.x != 0.0) {
+		gl_FragColor = vec4(toGamma(color), 1.0);
 	}
 
-	float w = prev.w + 1.0;
-	color = mix(prevLinear, color, 1.0 / w);
-	gl_FragColor = vec4(toGamma(color), w);
+	// Otherwise, mix the previous frame with this one
+	else {
+		float w = prev.w + 1.0;
+		color = mix(prevLinear, color, 1.0 / w);
+		gl_FragColor = vec4(toGamma(color), w);
+	}
 }
