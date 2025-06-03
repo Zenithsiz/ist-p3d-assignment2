@@ -117,9 +117,9 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		float len = length(vec2(u - 0.5, v - 0.5)) * 2.0;
 		if (len < 1.0) {
 			if (angle < 0.0) {
-				rec.material.emissive = vec3(1.0, 1.0, 0.0) * 5.0;
+				rec.material.emissive = vec3(1.0, 1.0, 0.0);
 			} else {
-				rec.material.emissive = vec3(0.0, 0.0, 1.0) * 5.0;
+				rec.material.emissive = vec3(0.0, 0.0, 1.0);
 			}
 		}
 	}

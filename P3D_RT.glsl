@@ -13,7 +13,7 @@ vec3 directLighting(Ray r, HitRecord rec) {
 	vec3 col = vec3(0.0, 0.0, 0.0);
 
 	vec3 n = rec.normal;
-	vec3 hitPoint = rec.pos + n * epsilon;
+	vec3 hitPos = rec.pos + n * epsilon;
 
 	if (dot(r.d, n) > 0.0) {
 		return vec3(0.0);
@@ -23,7 +23,6 @@ vec3 directLighting(Ray r, HitRecord rec) {
 		Quad light = worldLights[lightIdx];
 		vec3 lightPos = quadRandPoint(light, gSeed);
 
-		vec3 hitPos = rec.pos + n * epsilon;
 		float lightDist = length(lightPos - hitPos);
 		vec3 l = normalize(lightPos - hitPos);
 
@@ -31,21 +30,9 @@ vec3 directLighting(Ray r, HitRecord rec) {
 		Ray lightRay = createRay(hitPos, l);
 		HitRecord lightRec;
 		if (hit_world(lightRay, 0.001, lightDist + epsilon, lightRec) && lightRec.material.emissive != vec3(0.0)) {
-			// TODO: Even for lights without any light (> 0.0, but very small) this still adds a lot of
-			//       light to the image, what can we do?
-			vec3 diffCol = rec.material.albedo * max(dot(l, n), 0.0) / pi;
-			col += diffCol;
-
-			// Reflected direction
-			vec3 reflected_dir = reflect(-l, n);
-			reflected_dir += rec.material.roughness * randomUnitVector(gSeed);
-			vec3 specCol =
-				lightRec.material.emissive * rec.material.specColor * pow(max(dot(reflected_dir, -r.d), 0.0), 5.0);
-			col += specCol;
+			col += lightRec.material.emissive * brdf_microfacet(r.d, l, n, rec.material);
 		}
 	}
-
-	col += rec.material.emissive;
 
 	return col;
 }

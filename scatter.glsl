@@ -8,8 +8,54 @@
 #include "objects.glsl"
 #include "rand.glsl"
 
-float schlick(float cosine, float refIdx) {
-	return refIdx + (1.0 - refIdx) * pow(1.0 - cosine, 5.0);
+float schlick(float cosine, float f0) {
+	return f0 + (1.0 - f0) * pow(1.0 - cosine, 5.0);
+}
+
+vec3 schlick3(float cosine, vec3 f0) {
+	return f0 + (1.0 - f0) * pow(1.0 - cosine, 5.0);
+}
+
+/// Normalizing distribution function
+float ndf_ggx(float noh, float roughness) {
+	float alpha = roughness * roughness;
+	float alpha2 = alpha * alpha;
+	float noh2 = noh * noh;
+	float b = (noh2 * (alpha2 - 1.0) + 1.0);
+	return alpha2 / (pi * b * b);
+}
+
+float geometry_smith_schlick(float nov, float roughness) {
+	float alpha = roughness * roughness;
+	float k = alpha * sqrt(2.0 / pi);
+	return nov / (nov * (1.0 - k) + k + epsilon);
+}
+
+float geometry_smith(float nov, float nol, float roughness) {
+	return geometry_smith_schlick(nol, roughness) * geometry_smith_schlick(nov, roughness);
+}
+
+#define BRDF 3
+
+vec3 brdf_microfacet(vec3 v, vec3 l, vec3 n, Material mat) {
+	vec3 h = normalize(v + l);
+
+	float nov = max(dot(n, v), 0.0);
+	float nol = max(dot(n, l), 0.0);
+	float noh = max(dot(n, h), 0.0);
+	float voh = max(dot(v, h), 0.0);
+
+	vec3 f0 = 0.16 * mat.specColor * mat.specColor;
+
+	vec3 f = schlick3(voh, f0);
+	float d = ndf_ggx(noh, mat.roughness);
+	float g = geometry_smith(nov, nol, mat.roughness);
+
+	vec3 specColor = vec3(f * d * g) / (4.0 * max(nov, epsilon) * max(nol, epsilon));
+
+	vec3 diffColor = mat.albedo * max(dot(l, n), 0.0) * (1.0 - f) / pi;
+
+	return mat.emissive + diffColor + specColor;
 }
 
 bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
@@ -24,14 +70,7 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 			rScattered.d = -rScattered.d;
 		}
 
-		vec3 diffCol = rec.material.albedo * max(dot(rScattered.d, rec.normal), 0.0) / pi;
-
-		// Reflected direction
-		vec3 reflected_dir = reflect(-rScattered.d, rec.normal);
-		reflected_dir += rec.material.roughness * randomUnitVector(gSeed);
-		vec3 specCol = rec.material.specColor * pow(max(dot(reflected_dir, -rIn.d), 0.0), 5.0);
-
-		atten = diffCol + specCol;
+		atten = brdf_microfacet(-rIn.d, rScattered.d, rec.normal, rec.material);
 		return true;
 	}
 	if (rec.material.type == MT_METAL) {
