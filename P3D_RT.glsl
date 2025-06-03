@@ -7,6 +7,7 @@
 #include "./camera.glsl"
 #include "./common.glsl"
 #include "./material.glsl"
+#include "./objects.glsl"
 #include "./rand.glsl"
 
 #iChannel0 "self"
