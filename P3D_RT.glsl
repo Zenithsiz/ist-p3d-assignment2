@@ -5,10 +5,10 @@
  */
 
 #include "./camera.glsl"
-#include "./common.glsl"
 #include "./material.glsl"
 #include "./objects.glsl"
 #include "./rand.glsl"
+#include "./scatter.glsl"
 
 #iChannel0 "self"
 

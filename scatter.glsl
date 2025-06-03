@@ -1,13 +1,11 @@
-/**
- * common.glsl
- * Common types and functions used for ray tracing.
- */
+//! Scatter
+#ifndef SCATTER_H
+#define SCATTER_H
 
 #include "./camera.glsl"
 #include "./material.glsl"
 #include "./objects.glsl"
 #include "./rand.glsl"
-
 
 float schlick(float cosine, float refIdx) {
 	return refIdx + (1.0 - refIdx) * pow(1.0 - cosine, 5.0);
@@ -88,3 +86,5 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 	}
 	return false;
 }
+
+#endif
