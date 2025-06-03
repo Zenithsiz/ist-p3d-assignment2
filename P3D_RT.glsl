@@ -4,6 +4,7 @@
  * http://www.jcgt.org/published/0009/03/02/
  */
 
+#include "./camera.glsl"
 #include "./common.glsl"
 #include "./rand.glsl"
 
