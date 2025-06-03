@@ -2,6 +2,9 @@
 
 #include "objects.glsl"
 
+const Quad worldLights[] =
+	Quad[](Quad(vec3(5.0, 12.3, -2.5), vec3(5.0, 12.3, 2.5), vec3(-5.0, 12.3, 2.5), vec3(-5.0, 12.3, -2.5)));
+
 bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	bool hit = false;
 	rec.t = tmax;
@@ -10,10 +13,10 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	// https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/
 
 	// diffuse floor
-	vec3 A = vec3(-25.0f, -12.5f, 10.0f);
-	vec3 B = vec3(25.0f, -12.5f, 10.0f);
-	vec3 C = vec3(25.0f, -12.5f, -5.0f);
-	vec3 D = vec3(-25.0f, -12.5f, -5.0f);
+	vec3 A = vec3(-25.0, -12.5, 10.0);
+	vec3 B = vec3(25.0, -12.5, 10.0);
+	vec3 C = vec3(25.0, -12.5, -5.0);
+	vec3 D = vec3(-25.0, -12.5, -5.0);
 
 	if (hit_quad(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
 		hit = true;
@@ -22,14 +25,14 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	// stripped background
 	{
-		vec3 A = vec3(-25.0f, -10.5f, -5.0f);
-		vec3 B = vec3(25.0f, -10.5f, -5.0f);
-		vec3 C = vec3(25.0f, -1.5f, -5.0f);
-		vec3 D = vec3(-25.0f, -1.5f, -5.0f);
+		vec3 A = vec3(-25.0, -10.5, -5.0);
+		vec3 B = vec3(25.0, -10.5, -5.0);
+		vec3 C = vec3(25.0, -1.5, -5.0);
+		vec3 D = vec3(-25.0, -1.5, -5.0);
 
 		if (hit_quad(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
 			hit = true;
-			float shade = floor(mod(rec.pos.x, 1.0f) * 2.0f);
+			float shade = floor(mod(rec.pos.x, 1.0) * 2.0);
 			rec.material = createDiffuseMaterial(vec3(shade));
 		}
 	}
@@ -37,10 +40,10 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	// ceiling piece above light
 
 	{
-		vec3 A = vec3(-7.5f, 12.5f, 5.0f);
-		vec3 B = vec3(7.5f, 12.5f, 5.0f);
-		vec3 C = vec3(7.5f, 12.5f, -5.0f);
-		vec3 D = vec3(-7.5f, 12.5f, -5.0f);
+		vec3 A = vec3(-7.5, 12.5, 5.0);
+		vec3 B = vec3(7.5, 12.5, 5.0);
+		vec3 C = vec3(7.5, 12.5, -5.0);
+		vec3 D = vec3(-7.5, 12.5, -5.0);
 
 		if (hit_quad(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
 			hit = true;
@@ -49,18 +52,10 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	}
 
 	// light
-
-	{
-		vec3 A = vec3(-5.0f, 12.3f, 2.5f);
-		vec3 B = vec3(5.0f, 12.3f, 2.5f);
-		vec3 C = vec3(5.0f, 12.3f, -2.5f);
-		vec3 D = vec3(-5.0f, 12.3f, -2.5f);
-
-		if (hit_quad(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
-			hit = true;
-			rec.material = createDiffuseMaterial(vec3(0.0));
-			rec.material.emissive = vec3(1.0f, 0.9f, 0.9f) * 20.0f;
-		}
+	if (hit_quad(worldLights[0], r, tmin, rec.t, rec)) {
+		hit = true;
+		rec.material = createDiffuseMaterial(vec3(0.0));
+		rec.material.emissive = vec3(1.0, 0.9, 0.9) * 20.0f;
 	}
 
 	const int c_numSpheres = 7;
