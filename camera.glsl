@@ -36,7 +36,7 @@ Camera createCamera(
 	}
 	vec3 w = eye - at;
 	cam.planeDist = length(w);
-	cam.height = 2.0 * cam.planeDist * tan(fovy * pi / 180.0 * 0.5);
+	cam.height = 2.0 * cam.planeDist * tan(fovy * 0.5);
 	cam.width = aspect * cam.height;
 
 	cam.lensRadius =
@@ -73,11 +73,8 @@ vec3 pointOnRay(Ray r, float t) {
 }
 
 Ray getRay(Camera cam, vec2 pixel_sample) {
-	vec2 ls = cam.lensRadius * randomInUnitDisk(gSeed); // ls - lens sample for
-	                                                    // DOF
+	vec2 ls = cam.lensRadius * randomInUnitDisk(gSeed);
 	float time = cam.time0 + hash1(gSeed) * (cam.time1 - cam.time0);
-
-	// Calculate eye_offset and ray direction
 
 	float d = length(cam.n);
 	float f = d * cam.focusDist;

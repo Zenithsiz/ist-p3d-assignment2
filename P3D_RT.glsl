@@ -87,12 +87,14 @@ void main() {
 	gSeed = float(baseHash(floatBitsToUint(gl_FragCoord.xy))) / float(0xffffffffU) + iTime;
 
 	vec2 mouse = iMouse.xy / iResolution.xy;
-	mouse.x = mouse.x * 2.0 - 1.0;
-	mouse.y = mouse.y * 2.0 - 1.0;
 
-	vec3 camPos = vec3(mouse.x * 10.0, mouse.y * 5.0, 8.0);
+	float camAngle = (mouse.x * 2.0 - 1.0) * pi;
+	float camDist = (1.0 - mouse.y) * 20.0;
+	vec3 camPos = vec3(camDist * sin(camAngle), 1.0, camDist * cos(camAngle));
 	vec3 camTarget = vec3(0.0, 0.0, -1.0);
-	float fovy = 10.0; // TODO: This shouldn't be so low
+	camTarget = camPos + normalize(camTarget - camPos);
+
+	float fovy = radians(60.0);
 	float aperture = 0.0;
 	float distToFocus = 1.0;
 	float time0 = 0.0;
