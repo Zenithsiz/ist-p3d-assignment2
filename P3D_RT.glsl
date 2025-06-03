@@ -19,27 +19,30 @@ vec3 directLighting(Ray r, HitRecord rec) {
 		return vec3(0.0);
 	}
 
-	// TODO: We need to iterate over all lights in the scene, and choose
-	//       a random point within each quad light instead of the center.
-	vec3 lightPos = vec3(0.0, 6.0 - 0.05 + 1.0 * epsilon, 0.0);
+	for (int lightIdx = 0; lightIdx < worldLights.length(); lightIdx++) {
+		Quad light = worldLights[lightIdx];
+		vec3 lightPos = quadRandPoint(light, gSeed);
 
-	vec3 hitPos = rec.pos + n * epsilon;
-	float lightDist = length(lightPos - hitPos);
-	vec3 l = normalize(lightPos - hitPos);
+		vec3 hitPos = rec.pos + n * epsilon;
+		float lightDist = length(lightPos - hitPos);
+		vec3 l = normalize(lightPos - hitPos);
 
-	// If we hit the light, color it
-	Ray lightRay = createRay(hitPos, l);
-	HitRecord lightRec;
-	if (hit_world(lightRay, 0.001, lightDist, lightRec) && lightRec.material.emissive != vec3(0.0)) {
-		vec3 diffCol = rec.material.albedo * max(dot(l, n), 0.0) / pi;
-		col += diffCol;
+		// If we hit the light, color it
+		Ray lightRay = createRay(hitPos, l);
+		HitRecord lightRec;
+		if (hit_world(lightRay, 0.001, lightDist + epsilon, lightRec) && lightRec.material.emissive != vec3(0.0)) {
+			// TODO: Even for lights without any light (> 0.0, but very small) this still adds a lot of
+			//       light to the image, what can we do?
+			vec3 diffCol = rec.material.albedo * max(dot(l, n), 0.0) / pi;
+			col += diffCol;
 
-		// Reflected direction
-		vec3 reflected_dir = reflect(-l, n);
-		reflected_dir += rec.material.roughness * randomUnitVector(gSeed);
-		vec3 specCol =
-			lightRec.material.emissive * rec.material.specColor * pow(max(dot(reflected_dir, -r.d), 0.0), 5.0);
-		col += specCol;
+			// Reflected direction
+			vec3 reflected_dir = reflect(-l, n);
+			reflected_dir += rec.material.roughness * randomUnitVector(gSeed);
+			vec3 specCol =
+				lightRec.material.emissive * rec.material.specColor * pow(max(dot(reflected_dir, -r.d), 0.0), 5.0);
+			col += specCol;
+		}
 	}
 
 	col += rec.material.emissive;

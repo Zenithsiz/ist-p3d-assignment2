@@ -5,6 +5,7 @@
 
 #include "camera.glsl"
 #include "material.glsl"
+#include "rand.glsl"
 
 struct HitRecord {
 	vec3 pos;
@@ -62,6 +63,13 @@ struct Quad {
 bool hit_quad(Quad q, Ray r, float tmin, float tmax, inout HitRecord rec) {
 	return hit_triangle(Triangle(q.a, q.b, q.c), r, tmin, tmax, rec) ||
 	       hit_triangle(Triangle(q.a, q.c, q.d), r, tmin, tmax, rec);
+}
+
+vec3 quadRandPoint(Quad q, inout float seed) {
+	vec3 d1 = q.b - q.a;
+	vec3 d2 = q.d - q.a;
+
+	return q.a + d1 * hash1(seed) + d2 * hash1(seed);
 }
 
 struct Sphere {
@@ -126,18 +134,6 @@ bool hit_movingSphere(MovingSphere s, Ray r, float tmin, float tmax, inout HitRe
 	Sphere sphere = Sphere(center, s.radius);
 
 	return hit_sphere(sphere, r, tmin, tmax, rec);
-}
-
-struct pointLight {
-	vec3 pos;
-	vec3 color;
-};
-
-pointLight createPointLight(vec3 pos, vec3 color) {
-	pointLight l;
-	l.pos = pos;
-	l.color = color;
-	return l;
 }
 
 #endif
