@@ -8,6 +8,7 @@
 #include "scene.glsl"
 
 #iChannel0 "self"
+#iChannel1 "file://mouse.glsl"
 
 vec3 directLighting(Ray r, HitRecord rec) {
 	vec3 col = vec3(0.0, 0.0, 0.0);
@@ -78,17 +79,19 @@ void main() {
 	vec4 prev = texture(iChannel0, gl_FragCoord.xy / iResolution.xy);
 	vec3 prevLinear = toLinear(prev.xyz);
 
-	// If we're done rendering and the user isn't moving around, skip everything else
-	if (prev.w > MAX_SAMPLES && iMouseButton.x == 0.0) {
+	vec4 rawMouse = texture(iChannel1, gl_FragCoord.xy / iResolution.xy);
+	vec2 mouse = rawMouse.xy / iResolution.xy;
+	bool inputHasChanged = rawMouse.xy != rawMouse.zw;
+
+	// If we're done rendering and the input hasn't changed, return
+	if (prev.w > MAX_SAMPLES && !inputHasChanged) {
 		gl_FragColor = prev;
 		return;
 	}
 
 	gSeed = float(baseHash(floatBitsToUint(gl_FragCoord.xy))) / float(0xffffffffU) + iTime;
 
-	vec2 mouse = iMouse.xy / iResolution.xy;
-
-	float camAngle = (mouse.x * 2.0 - 1.0) * pi;
+	float camAngle = ((mouse.x + 0.5) * 2.0 - 1.0) * pi;
 	float camDist = (1.0 - mouse.y) * 20.0;
 	vec3 camPos = vec3(camDist * sin(camAngle), 1.0, camDist * cos(camAngle));
 	vec3 camTarget = vec3(0.0, 0.0, -1.0);
@@ -114,8 +117,8 @@ void main() {
 	vec2 ps = gl_FragCoord.xy + hash2(gSeed);
 	vec3 color = rayColor(cam, getRay(cam, ps));
 
-	// If the user just pressed the mouse, reset the scene to this color
-	if (iMouseButton.x != 0.0) {
+	// If the user inputted anything, reset the scene to this color
+	if (inputHasChanged) {
 		gl_FragColor = vec4(toGamma(color), 1.0);
 	}
 
