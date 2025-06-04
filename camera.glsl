@@ -76,7 +76,7 @@ Ray getRay(Camera cam, vec2 pixel_sample) {
 	vec2 ls = cam.lensRadius * randomInUnitDisk(gSeed);
 	float time = cam.time0 + hash1(gSeed) * (cam.time1 - cam.time0);
 
-	float d = length(cam.n);
+	float d = cam.planeDist;
 	float f = d * cam.focusDist;
 
 	vec3 p_s = vec3(
