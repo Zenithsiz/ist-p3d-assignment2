@@ -1,4 +1,4 @@
-//! Mouse vertical
+//! Input - vertical
 
 #iChannel0 "self"
 #iChannel0::MinFilter "Nearest"

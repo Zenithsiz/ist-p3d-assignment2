@@ -1,11 +1,11 @@
-//! Mouse orbit + zoom
+//! Input - orbit + zoom
 
 #iChannel0 "self"
 #iChannel0::MinFilter "Nearest"
 #iChannel0::MagFilter "Nearest"
 #iKeyboard
 
-// Output: vec4(curPos, curStartPos)
+// Output: vec4(curMouse.x, curMouse.y, startMouse.x, startMouse.y)
 
 void main() {
 	// Note: We try to compute only a single pixel to avoid having to
