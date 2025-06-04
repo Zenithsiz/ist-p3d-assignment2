@@ -56,18 +56,6 @@ struct Ray {
 	float t; // time, for motion blur
 };
 
-Ray createRay(vec3 o, vec3 d, float t) {
-	Ray r;
-	r.o = o;
-	r.d = d;
-	r.t = t;
-	return r;
-}
-
-Ray createRay(vec3 o, vec3 d) {
-	return createRay(o, d, 0.0);
-}
-
 vec3 pointOnRay(Ray r, float t) {
 	return r.o + r.d * t;
 }
@@ -90,7 +78,7 @@ Ray getRay(Camera cam, vec2 pixel_sample) {
 	vec3 eye_offset = cam.eye + ls.x * cam.u + ls.y * cam.v;
 	vec3 ray_dir = (p.x - ls.x) * cam.u + (p.y - ls.y) * cam.v - f * cam.n;
 
-	return createRay(eye_offset, normalize(ray_dir), time);
+	return Ray(eye_offset, normalize(ray_dir), time);
 }
 
 #endif
