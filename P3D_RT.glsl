@@ -94,6 +94,7 @@ void main() {
 	vec4 rawInputVerticalFov = texture(iChannel2, vec2(0.0, 0.0) / iResolution.xy);
 	float inputVertical = rawInputVerticalFov.x;
 	float inputFov = rawInputVerticalFov.y;
+	float inputRoll = rawInputVerticalFov.z;
 
 	vec4 rawInputTarget = texture(iChannel3, vec2(0.0, 0.0) / iResolution.xy);
 	vec3 inputTarget = rawInputTarget.xyz;
@@ -122,7 +123,7 @@ void main() {
 	Camera cam = createCamera(
 		camPos,
 		camTarget,
-		vec3(0.0, 1.0, 0.0), // world up vector
+		vec3(sin(inputRoll), cos(inputRoll), 0.0), // world up vector
 		fovy,
 		iResolution.x / iResolution.y,
 		aperture,

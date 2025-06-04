@@ -5,7 +5,7 @@
 #iChannel0::MagFilter "Nearest"
 #iKeyboard
 
-// Output: vec4(curCamVertical, curFov, 0.0, isChanged)
+// Output: vec4(curCamVertical, curFov, curCameraRoll, isChanged)
 
 void main() {
 	// Note: We try to compute only a single pixel to avoid having to
@@ -19,6 +19,7 @@ void main() {
 	vec4 prevState = texture(iChannel0, gl_FragCoord.xy / iResolution.xy);
 	float curVertical = prevState.x;
 	float curFov = prevState.y;
+	float curCameraRoll = prevState.z;
 
 	// Camera
 	if (isKeyDown(Key_Q)) {
@@ -36,12 +37,23 @@ void main() {
 		curFov += 1.0;
 	}
 
+	// Roll
+	if (isKeyDown(Key_Z)) {
+		curCameraRoll -= 0.01;
+	}
+	if (isKeyDown(Key_C)) {
+		curCameraRoll += 0.01;
+	}
+
 	// Reset
 	if (isKeyDown(Key_R)) {
 		curVertical = 0.0;
+		curFov = 0.0;
+		curCameraRoll = 0.0;
 	}
 
 	gl_FragColor.x = curVertical;
 	gl_FragColor.y = curFov;
-	gl_FragColor.w = (curVertical != prevState.x || curFov != prevState.y) ? 1.0 : 0.0;
+	gl_FragColor.z = curCameraRoll;
+	gl_FragColor.w = (curVertical != prevState.x || curFov != prevState.y || curCameraRoll != prevState.z) ? 1.0 : 0.0;
 }
