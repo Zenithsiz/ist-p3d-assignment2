@@ -14,6 +14,9 @@
 #iChannel2 "file://input/vertical.glsl"
 #iChannel2::MinFilter "Nearest"
 #iChannel2::MagFilter "Nearest"
+#iChannel3 "file://input/target-pos.glsl"
+#iChannel3::MinFilter "Nearest"
+#iChannel3::MagFilter "Nearest"
 
 vec3 directLighting(Ray r, HitRecord rec) {
 	vec3 col = vec3(0.0, 0.0, 0.0);
@@ -88,9 +91,13 @@ void main() {
 	vec2 inputOrbitZoom = rawInputOrbitZoom.xy / iResolution.xy;
 
 	vec4 rawInputVertical = texture(iChannel2, vec2(0.0, 0.0) / iResolution.xy);
-	vec2 inputVertical = rawInputVertical.xy;
+	float inputVertical = rawInputVertical.x;
 
-	bool inputHasChanged = rawInputOrbitZoom.xy != rawInputOrbitZoom.zw || rawInputVertical.x != rawInputVertical.y;
+	vec4 rawInputTarget = texture(iChannel3, vec2(0.0, 0.0) / iResolution.xy);
+	vec2 inputTarget = rawInputTarget.xy;
+
+	bool inputHasChanged = rawInputOrbitZoom.xy != rawInputOrbitZoom.zw || rawInputVertical.x != rawInputVertical.y ||
+	                       rawInputTarget.xy != rawInputTarget.zw;
 
 	// If we're done rendering and the input hasn't changed, return
 	if (prev.w > MAX_SAMPLES && !inputHasChanged) {
@@ -102,8 +109,8 @@ void main() {
 
 	float camAngle = ((inputOrbitZoom.x + 0.5) * 2.0 - 1.0) * pi;
 	float camDist = (1.0 - inputOrbitZoom.y) * 20.0;
-	vec3 camPos = vec3(camDist * sin(camAngle), 1.0 + inputVertical.x, camDist * cos(camAngle));
-	vec3 camTarget = vec3(0.0, 0.0, -1.0);
+	vec3 camPos = vec3(camDist * sin(camAngle), 1.0 + inputVertical, camDist * cos(camAngle));
+	vec3 camTarget = vec3(inputTarget.x, 0.0, inputTarget.y);
 	camTarget = camPos + normalize(camTarget - camPos);
 
 	float fovy = radians(60.0);
