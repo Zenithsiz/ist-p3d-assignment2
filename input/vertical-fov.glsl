@@ -1,11 +1,11 @@
-//! Input - vertical
+//! Input - vertical and fov
 
 #iChannel0 "self"
 #iChannel0::MinFilter "Nearest"
 #iChannel0::MagFilter "Nearest"
 #iKeyboard
 
-// Output: vec4(curCamVertical, 0.0, 0.0, isChanged)
+// Output: vec4(curCamVertical, curFov, 0.0, isChanged)
 
 void main() {
 	// Note: We try to compute only a single pixel to avoid having to
@@ -18,6 +18,7 @@ void main() {
 	// Previous frame's output
 	vec4 prevState = texture(iChannel0, gl_FragCoord.xy / iResolution.xy);
 	float curVertical = prevState.x;
+	float curFov = prevState.y;
 
 	// Camera
 	if (isKeyDown(Key_Q)) {
@@ -27,11 +28,20 @@ void main() {
 		curVertical += 0.1;
 	}
 
+	// Fov
+	if (isKeyDown(Key_1)) {
+		curFov -= 1.0;
+	}
+	if (isKeyDown(Key_3)) {
+		curFov += 1.0;
+	}
+
 	// Reset
 	if (isKeyDown(Key_R)) {
 		curVertical = 0.0;
 	}
 
 	gl_FragColor.x = curVertical;
-	gl_FragColor.w = (curVertical != prevState.x) ? 1.0 : 0.0;
+	gl_FragColor.y = curFov;
+	gl_FragColor.w = (curVertical != prevState.x || curFov != prevState.y) ? 1.0 : 0.0;
 }
