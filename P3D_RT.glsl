@@ -17,6 +17,9 @@
 #iChannel3 "file://input/target-pos.glsl"
 #iChannel3::MinFilter "Nearest"
 #iChannel3::MagFilter "Nearest"
+#iChannel4 "file://input/dof.glsl"
+#iChannel4::MinFilter "Nearest"
+#iChannel4::MagFilter "Nearest"
 
 vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 	vec3 col = vec3(0.0, 0.0, 0.0);
@@ -99,8 +102,12 @@ void main() {
 	vec4 rawInputTarget = texture(iChannel3, vec2(0.0, 0.0) / iResolution.xy);
 	vec3 inputTarget = rawInputTarget.xyz;
 
-	bool inputHasChanged =
-		rawInputOrbitZoom.xy != rawInputOrbitZoom.zw || rawInputVerticalFov.w == 1.0 || rawInputTarget.w == 1.0;
+	vec4 rawInputDof = texture(iChannel4, vec2(0.0, 0.0) / iResolution.xy);
+	float inputAperture = rawInputDof.x;
+	float inputDistToFocus = rawInputDof.y;
+
+	bool inputHasChanged = rawInputOrbitZoom.xy != rawInputOrbitZoom.zw || rawInputVerticalFov.w == 1.0 ||
+	                       rawInputTarget.w == 1.0 || rawInputDof.w == 1.0;
 
 	// If we're done rendering and the input hasn't changed, return
 	if (prev.w > MAX_SAMPLES && !inputHasChanged) {
@@ -112,12 +119,13 @@ void main() {
 
 	float camAngle = ((inputOrbitZoom.x + 0.5) * 2.0 - 1.0) * pi;
 	float camDist = (1.0 - inputOrbitZoom.y) * 10.0;
+	// TODO: Camera position should depend on the target
 	vec3 camPos = vec3(camDist * sin(camAngle), 4.0 + inputVertical, camDist * cos(camAngle));
 	vec3 camTarget = vec3(inputTarget.x, inputTarget.y, inputTarget.z);
 
 	float fovy = radians(60.0 + inputFov);
-	float aperture = 0.0;
-	float distToFocus = 1.0;
+	float aperture = inputAperture;
+	float distToFocus = 1.0 + inputDistToFocus;
 	float time0 = 0.0;
 	float time1 = 1.0;
 	Camera cam = createCamera(
