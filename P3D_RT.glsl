@@ -8,9 +8,12 @@
 #include "scene.glsl"
 
 #iChannel0 "self"
-#iChannel1 "file://mouse.glsl"
+#iChannel1 "file://mouse/orbit-zoom.glsl"
 #iChannel1::MinFilter "Nearest"
 #iChannel1::MagFilter "Nearest"
+#iChannel2 "file://mouse/vertical.glsl"
+#iChannel2::MinFilter "Nearest"
+#iChannel2::MagFilter "Nearest"
 
 vec3 directLighting(Ray r, HitRecord rec) {
 	vec3 col = vec3(0.0, 0.0, 0.0);
@@ -81,9 +84,13 @@ void main() {
 	vec4 prev = texture(iChannel0, gl_FragCoord.xy / iResolution.xy);
 	vec3 prevLinear = toLinear(prev.xyz);
 
-	vec4 rawMouse = texture(iChannel1, vec2(0.0, 0.0) / iResolution.xy);
-	vec2 mouse = rawMouse.xy / iResolution.xy;
-	bool inputHasChanged = rawMouse.xy != rawMouse.zw;
+	vec4 rawMouseOrbitZoom = texture(iChannel1, vec2(0.0, 0.0) / iResolution.xy);
+	vec2 mouseOrbitZoom = rawMouseOrbitZoom.xy / iResolution.xy;
+
+	vec4 rawMouseVertical = texture(iChannel2, vec2(0.0, 0.0) / iResolution.xy);
+	vec2 mouseVertical = rawMouseVertical.xy;
+
+	bool inputHasChanged = rawMouseOrbitZoom.xy != rawMouseOrbitZoom.zw || rawMouseVertical.x != rawMouseVertical.y;
 
 	// If we're done rendering and the input hasn't changed, return
 	if (prev.w > MAX_SAMPLES && !inputHasChanged) {
@@ -93,9 +100,9 @@ void main() {
 
 	gSeed = float(baseHash(floatBitsToUint(gl_FragCoord.xy))) / float(0xffffffffU) + iTime;
 
-	float camAngle = ((mouse.x + 0.5) * 2.0 - 1.0) * pi;
-	float camDist = (1.0 - mouse.y) * 20.0;
-	vec3 camPos = vec3(camDist * sin(camAngle), 1.0, camDist * cos(camAngle));
+	float camAngle = ((mouseOrbitZoom.x + 0.5) * 2.0 - 1.0) * pi;
+	float camDist = (1.0 - mouseOrbitZoom.y) * 20.0;
+	vec3 camPos = vec3(camDist * sin(camAngle), 1.0 + mouseVertical.x, camDist * cos(camAngle));
 	vec3 camTarget = vec3(0.0, 0.0, -1.0);
 	camTarget = camPos + normalize(camTarget - camPos);
 

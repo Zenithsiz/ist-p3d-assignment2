@@ -1,4 +1,4 @@
-//! Mouse control shader
+//! Mouse orbit + zoom
 
 #iChannel0 "self"
 #iChannel0::MinFilter "Nearest"
