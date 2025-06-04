@@ -119,9 +119,8 @@ void main() {
 
 	float camAngle = ((inputOrbitZoom.x + 0.5) * 2.0 - 1.0) * pi;
 	float camDist = (1.0 - inputOrbitZoom.y) * 10.0;
-	// TODO: Camera position should depend on the target
-	vec3 camPos = vec3(camDist * sin(camAngle), 4.0 + inputVertical, camDist * cos(camAngle));
 	vec3 camTarget = vec3(inputTarget.x, inputTarget.y, inputTarget.z);
+	vec3 camPos = camTarget + vec3(camDist * sin(camAngle), 4.0 + inputVertical, camDist * cos(camAngle));
 
 	float fovy = radians(60.0 + inputFov);
 	float aperture = inputAperture;
