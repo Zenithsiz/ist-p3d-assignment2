@@ -91,13 +91,13 @@ void main() {
 	vec2 inputOrbitZoom = rawInputOrbitZoom.xy / iResolution.xy;
 
 	vec4 rawInputVertical = texture(iChannel2, vec2(0.0, 0.0) / iResolution.xy);
-	vec2 inputVertical = rawInputVertical.xy;
+	float inputVertical = rawInputVertical.x;
 
 	vec4 rawInputTarget = texture(iChannel3, vec2(0.0, 0.0) / iResolution.xy);
-	vec2 inputTarget = rawInputTarget.xy;
+	vec3 inputTarget = rawInputTarget.xyz;
 
-	bool inputHasChanged = rawInputOrbitZoom.xy != rawInputOrbitZoom.zw || rawInputVertical.xy != rawInputVertical.zw ||
-	                       rawInputTarget.xy != rawInputTarget.zw;
+	bool inputHasChanged =
+		rawInputOrbitZoom.xy != rawInputOrbitZoom.zw || rawInputVertical.w == 1.0 || rawInputTarget.w == 1.0;
 
 	// If we're done rendering and the input hasn't changed, return
 	if (prev.w > MAX_SAMPLES && !inputHasChanged) {
@@ -109,8 +109,8 @@ void main() {
 
 	float camAngle = ((inputOrbitZoom.x + 0.5) * 2.0 - 1.0) * pi;
 	float camDist = (1.0 - inputOrbitZoom.y) * 20.0;
-	vec3 camPos = vec3(camDist * sin(camAngle), 1.0 + inputVertical.x, camDist * cos(camAngle));
-	vec3 camTarget = vec3(inputTarget.x, inputVertical.y, inputTarget.y);
+	vec3 camPos = vec3(camDist * sin(camAngle), 1.0 + inputVertical, camDist * cos(camAngle));
+	vec3 camTarget = vec3(inputTarget.x, inputTarget.y, inputTarget.z);
 
 	float fovy = radians(60.0);
 	float aperture = 0.0;
