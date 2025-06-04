@@ -39,8 +39,8 @@ vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 		float time = cam.time0 + hash1(gSeed) * (cam.time1 - cam.time0);
 		Ray lightRay = Ray(hitPos, l, time);
 		HitRecord lightRec;
-		if (hit_world(lightRay, 0.001, lightDist + epsilon, lightRec) && lightRec.material.emissive != vec3(0.0)) {
-			col += lightRec.material.emissive * brdf_microfacet(r.d, l, n, rec.material);
+		if (worldHit(lightRay, 0.001, lightDist + epsilon, lightRec) && lightRec.material.emissive != vec3(0.0)) {
+			col += lightRec.material.emissive * brdfMicrofacet(r.d, l, n, rec.material);
 		}
 	}
 
@@ -55,7 +55,7 @@ vec3 rayColor(Camera cam, Ray r) {
 	vec3 throughput = vec3(1.0f, 1.0f, 1.0f);
 
 	for (int i = 0; i < MAX_BOUNCES; ++i) {
-		if (hit_world(r, 0.001, 10000.0, rec)) {
+		if (worldHit(r, 0.001, 10000.0, rec)) {
 			col += directLighting(cam, r, rec) * throughput;
 
 			// calculate secondary ray and update throughput

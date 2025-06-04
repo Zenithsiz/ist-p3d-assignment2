@@ -24,20 +24,20 @@ const Quad worldLights[] = Quad[](
 	)
 );
 
-bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
+bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	bool hit = false;
 	rec.t = tmax;
 
 	// Lights
 	for (int lightIdx = 0; lightIdx < worldLights.length(); lightIdx++) {
-		if (hit_quad(worldLights[lightIdx], r, tmin, rec.t, rec)) {
+		if (quadHit(worldLights[lightIdx], r, tmin, rec.t, rec)) {
 			hit = true;
 			rec.material = createDiffuseMaterial(vec3(0.0));
 			rec.material.emissive = vec3(1.0f, 1.0f, 1.0f);
 		}
 	}
 
-	if (hit_quad(
+	if (quadHit(
 			Quad(
 				vec3(-10.0, -0.05, 10.0), vec3(10.0, -0.05, 10.0), vec3(10.0, -0.05, -10.0), vec3(-10.0, -0.05, -10.0)
 			),
@@ -50,28 +50,28 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		rec.material = createDiffuseMaterial(vec3(0.2));
 	}
 
-	if (hit_sphere(Sphere(vec3(-4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
+	if (sphereHit(Sphere(vec3(-4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDiffuseMaterial(vec3(0.2, 0.95, 0.1));
 		rec.material.specColor = vec3(0.04);
 	}
 
-	if (hit_sphere(Sphere(vec3(4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
+	if (sphereHit(Sphere(vec3(4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createMetalMaterial(vec3(0.7, 0.6, 0.5), 0.0);
 	}
 
-	if (hit_sphere(Sphere(vec3(-1.5, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
+	if (sphereHit(Sphere(vec3(-1.5, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDielectricMaterial(vec3(0.0), 1.33, 0.0);
 	}
 
-	if (hit_sphere(Sphere(vec3(-1.5, 1.0, 0.0), -0.5), r, tmin, rec.t, rec)) {
+	if (sphereHit(Sphere(vec3(-1.5, 1.0, 0.0), -0.5), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDielectricMaterial(vec3(0.0), 1.33, 0.0);
 	}
 
-	if (hit_sphere(Sphere(vec3(1.5, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
+	if (sphereHit(Sphere(vec3(1.5, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDielectricMaterial(vec3(0.0, 0.9, 0.9), 1.5, 0.0);
 	}
@@ -90,31 +90,31 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 				if (chooseMaterial < 0.3) {
 					vec3 center1 = center + vec3(0.0, hash1(gSeed) * 0.5, 0.0);
 					// diffuse
-					if (hit_movingSphere(MovingSphere(center, center1, 0.2, 0.0, 1.0), r, tmin, rec.t, rec)) {
+					if (movingSphereHit(MovingSphere(center, center1, 0.2, 0.0, 1.0), r, tmin, rec.t, rec)) {
 						hit = true;
 						rec.material = createDiffuseMaterial(hash3(seed) * hash3(seed));
 					}
 				} else if (chooseMaterial < 0.5) {
 					// diffuse
-					if (hit_sphere(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
+					if (sphereHit(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
 						hit = true;
 						rec.material = createDiffuseMaterial(hash3(seed) * hash3(seed));
 					}
 				} else if (chooseMaterial < 0.7) {
 					// metal
-					if (hit_sphere(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
+					if (sphereHit(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
 						hit = true;
 						rec.material = createMetalMaterial((hash3(seed) + 1.0) * 0.5, 0.0);
 					}
 				} else if (chooseMaterial < 0.9) {
 					// metal
-					if (hit_sphere(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
+					if (sphereHit(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
 						hit = true;
 						rec.material = createMetalMaterial((hash3(seed) + 1.0) * 0.5, hash1(seed));
 					}
 				} else {
 					// glass (Dielectric)
-					if (hit_sphere(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
+					if (sphereHit(Sphere(center, 0.2), r, tmin, rec.t, rec)) {
 						hit = true;
 						rec.material = createDielectricMaterial(hash3(seed), 1.33, 0.0);
 					}

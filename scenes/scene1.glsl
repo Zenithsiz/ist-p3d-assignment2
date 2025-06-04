@@ -5,7 +5,7 @@
 const Quad worldLights[] =
 	Quad[](Quad(vec3(5.0, 12.3, -2.5), vec3(5.0, 12.3, 2.5), vec3(-5.0, 12.3, 2.5), vec3(-5.0, 12.3, -2.5)));
 
-bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
+bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	bool hit = false;
 	rec.t = tmax;
 
@@ -18,7 +18,7 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	vec3 C = vec3(25.0, -12.5, -5.0);
 	vec3 D = vec3(-25.0, -12.5, -5.0);
 
-	if (hit_quad(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
+	if (quadHit(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDiffuseMaterial(vec3(0.7));
 	}
@@ -30,7 +30,7 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		vec3 C = vec3(25.0, -1.5, -5.0);
 		vec3 D = vec3(-25.0, -1.5, -5.0);
 
-		if (hit_quad(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
+		if (quadHit(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
 			hit = true;
 			float shade = floor(mod(rec.pos.x, 1.0) * 2.0);
 			rec.material = createDiffuseMaterial(vec3(shade));
@@ -45,25 +45,25 @@ bool hit_world(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		vec3 C = vec3(7.5, 12.5, -5.0);
 		vec3 D = vec3(-7.5, 12.5, -5.0);
 
-		if (hit_quad(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
+		if (quadHit(Quad(A, B, C, D), r, tmin, rec.t, rec)) {
 			hit = true;
 			rec.material = createDiffuseMaterial(vec3(0.7));
 		}
 	}
 
 	// light
-	if (hit_quad(worldLights[0], r, tmin, rec.t, rec)) {
+	if (quadHit(worldLights[0], r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDiffuseMaterial(vec3(0.0));
 		rec.material.emissive = vec3(1.0, 0.9, 0.9) * 20.0f;
 	}
 
-	const int c_numSpheres = 7;
-	for (int sphereIndex = 0; sphereIndex < c_numSpheres; ++sphereIndex) {
+	const int numSpheres = 7;
+	for (int sphereIndex = 0; sphereIndex < numSpheres; ++sphereIndex) {
 		vec3 center = vec3(-18.0 + 6.0 * float(sphereIndex), -8.0, 0.0);
-		if (hit_sphere(Sphere(center, 2.8), r, tmin, rec.t, rec)) {
+		if (sphereHit(Sphere(center, 2.8), r, tmin, rec.t, rec)) {
 			hit = true;
-			float r = float(sphereIndex) / float(c_numSpheres - 1) * 0.1f;
+			float r = float(sphereIndex) / float(numSpheres - 1) * 0.1f;
 			rec.material = createDielectricMaterial(vec3(0.0, 0.5, 1.0), 1.1, r);
 		}
 	}

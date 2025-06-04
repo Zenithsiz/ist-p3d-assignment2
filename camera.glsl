@@ -60,25 +60,25 @@ vec3 pointOnRay(Ray r, float t) {
 	return r.o + r.d * t;
 }
 
-Ray getRay(Camera cam, vec2 pixel_sample) {
+Ray getRay(Camera cam, vec2 pixelSample) {
 	vec2 ls = cam.lensRadius * randomInUnitDisk(gSeed);
 	float time = cam.time0 + hash1(gSeed) * (cam.time1 - cam.time0);
 
 	float d = cam.planeDist;
 	float f = d * cam.focusDist;
 
-	vec3 p_s = vec3(
-		cam.width * ((pixel_sample.x + 0.5) / iResolution.x - 0.5),
-		cam.height * ((pixel_sample.y + 0.5) / iResolution.y - 0.5),
+	vec3 ps = vec3(
+		cam.width * ((pixelSample.x + 0.5) / iResolution.x - 0.5),
+		cam.height * ((pixelSample.y + 0.5) / iResolution.y - 0.5),
 		-d
 	);
 
-	vec3 p = p_s * cam.focusDist;
+	vec3 p = ps * cam.focusDist;
 
-	vec3 eye_offset = cam.eye + ls.x * cam.u + ls.y * cam.v;
-	vec3 ray_dir = (p.x - ls.x) * cam.u + (p.y - ls.y) * cam.v - f * cam.n;
+	vec3 eyeOffset = cam.eye + ls.x * cam.u + ls.y * cam.v;
+	vec3 rayDir = (p.x - ls.x) * cam.u + (p.y - ls.y) * cam.v - f * cam.n;
 
-	return Ray(eye_offset, normalize(ray_dir), time);
+	return Ray(eyeOffset, normalize(rayDir), time);
 }
 
 #endif
