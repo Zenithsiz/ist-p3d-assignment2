@@ -9,6 +9,8 @@
 
 #iChannel0 "self"
 #iChannel1 "file://mouse.glsl"
+#iChannel1::MinFilter "Nearest"
+#iChannel1::MagFilter "Nearest"
 
 vec3 directLighting(Ray r, HitRecord rec) {
 	vec3 col = vec3(0.0, 0.0, 0.0);
@@ -79,7 +81,7 @@ void main() {
 	vec4 prev = texture(iChannel0, gl_FragCoord.xy / iResolution.xy);
 	vec3 prevLinear = toLinear(prev.xyz);
 
-	vec4 rawMouse = texture(iChannel1, gl_FragCoord.xy / iResolution.xy);
+	vec4 rawMouse = texture(iChannel1, vec2(0.0, 0.0) / iResolution.xy);
 	vec2 mouse = rawMouse.xy / iResolution.xy;
 	bool inputHasChanged = rawMouse.xy != rawMouse.zw;
 
