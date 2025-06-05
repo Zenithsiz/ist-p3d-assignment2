@@ -11,7 +11,7 @@
 #iChannel1 "file://input/orbit-zoom.glsl"
 #iChannel1::MinFilter "Nearest"
 #iChannel1::MagFilter "Nearest"
-#iChannel2 "file://input/vertical-fov.glsl"
+#iChannel2 "file://input/cam-dist-roll-fov.glsl"
 #iChannel2::MinFilter "Nearest"
 #iChannel2::MagFilter "Nearest"
 #iChannel3 "file://input/target-pos.glsl"
@@ -95,7 +95,7 @@ void main() {
 	vec2 inputOrbitZoom = rawInputOrbitZoom.xy;
 
 	vec4 rawInputVerticalFov = texture(iChannel2, vec2(0.0, 0.0) / iResolution.xy);
-	float inputVertical = rawInputVerticalFov.x;
+	float inputDist = rawInputVerticalFov.x;
 	float inputFov = rawInputVerticalFov.y;
 	float inputRoll = rawInputVerticalFov.z;
 
@@ -117,10 +117,14 @@ void main() {
 
 	gSeed = float(baseHash(floatBitsToUint(gl_FragCoord.xy))) / float(0xffffffffU) + iTime;
 
-	float camAngle = ((inputOrbitZoom.x + 0.5) * 2.0 - 1.0) * pi;
-	float camDist = (1.0 - inputOrbitZoom.y) * 10.0;
+	float camYaw = ((inputOrbitZoom.x + 0.5) * 2.0 - 1.0) * pi;
+	float camPitch = ((inputOrbitZoom.y + 0.5) * 2.0 - 1.0) * pi + radians(20.0);
+	float camRoll = inputRoll * pi;
+
+	float camDist = 10.0 + inputDist;
 	vec3 camTarget = vec3(inputTarget.x, inputTarget.y, inputTarget.z);
-	vec3 camPos = camTarget + vec3(camDist * sin(camAngle), 4.0 + inputVertical, camDist * cos(camAngle));
+	vec3 camPos = camTarget + camDist * vec3(sin(camYaw) * cos(camPitch), sin(camPitch), cos(camYaw) * cos(camPitch));
+	vec3 camUp = vec3(sin(camRoll), cos(camRoll), 0.0);
 
 	float fovy = radians(60.0 + inputFov);
 	float aperture = inputAperture;
@@ -128,15 +132,7 @@ void main() {
 	float time0 = 0.0;
 	float time1 = 1.0;
 	Camera cam = createCamera(
-		camPos,
-		camTarget,
-		vec3(sin(inputRoll), cos(inputRoll), 0.0), // world up vector
-		fovy,
-		iResolution.x / iResolution.y,
-		aperture,
-		distToFocus,
-		time0,
-		time1
+		camPos, camTarget, camUp, fovy, iResolution.x / iResolution.y, aperture, distToFocus, time0, time1
 	);
 
 	vec2 ps = gl_FragCoord.xy + hash2(gSeed);
