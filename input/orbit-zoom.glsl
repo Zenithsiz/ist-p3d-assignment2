@@ -46,18 +46,18 @@ void main() {
 
 	// Left-right
 	if (isKeyDown(Key_A)) {
-		curStartPos.x -= 0.01;
+		curStartPos.x += 0.01;
 	}
 	if (isKeyDown(Key_D)) {
-		curStartPos.x += 0.01;
+		curStartPos.x -= 0.01;
 	}
 
 	// Forward/Back
 	if (isKeyDown(Key_W)) {
-		curStartPos.y += 0.01;
+		curStartPos.y -= 0.01;
 	}
 	if (isKeyDown(Key_S)) {
-		curStartPos.y -= 0.01;
+		curStartPos.y += 0.01;
 	}
 
 	// Reset
