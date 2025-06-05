@@ -2,17 +2,20 @@
 
 #include "objects.glsl"
 
-// Note: We don't actually have any lights, but empty arrays aren't
-//       allowed, so we have to initialize it something.
-const Quad worldLights[] = Quad[](Quad(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0)));
-
 const float poolWidth = 20.0;
-const float poolDepth = 0.5;
+const float poolDepth = 2.5;
 
 const float wallHeight = 20.0;
-const float wallPoolDist = 2.0 * epsilon;
+const float wallPoolDist = 10.0 * epsilon;
 const float wallDepth = poolDepth + wallPoolDist;
 const float wallWidth = poolWidth + wallPoolDist;
+
+const Quad worldLights[] = Quad[](Quad(
+	vec3(wallWidth / 2.0, wallHeight, -wallWidth / 2.0),
+	vec3(wallWidth / 2.0, wallHeight, wallWidth / 2.0),
+	vec3(-wallWidth / 2.0, wallHeight, wallWidth / 2.0),
+	vec3(-wallWidth / 2.0, wallHeight, -wallWidth / 2.0)
+));
 
 bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	bool hit = false;
@@ -96,6 +99,15 @@ bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		)) {
 		hit = true;
 		rec.material = createDielectricMaterial(vec3(0.1, 0.0, 0.0), 1.5, 0.0);
+	}
+
+	// Lights
+	for (int lightIdx = 0; lightIdx < worldLights.length(); lightIdx++) {
+		if (quadHit(worldLights[lightIdx], r, tmin, rec.t, rec)) {
+			hit = true;
+			rec.material = createDiffuseMaterial(vec3(0.0));
+			rec.material.emissive = vec3(1.0f, 1.0f, 1.0f);
+		}
 	}
 
 	return hit;
