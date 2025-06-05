@@ -141,4 +141,98 @@ bool movingSphereHit(MovingSphere s, Ray r, float tmin, float tmax, inout HitRec
 	return sphereHit(sphere, r, tmin, tmax, rec);
 }
 
+/// Axis-aligned bounding-br.o.x
+struct AABB {
+	vec3 min_;
+	vec3 max_;
+};
+
+bool aabbHit(AABB aabb, Ray r, float tmin, float tmax, inout HitRecord rec) {
+	float txMin, tyMin, tzMin;
+	float txMax, tyMax, tzMax;
+
+	float a = 1.0 / r.d.x;
+	if (a >= 0.0) {
+		txMin = (aabb.min_.x - r.o.x) * a;
+		txMax = (aabb.max_.x - r.o.x) * a;
+	} else {
+		txMin = (aabb.max_.x - r.o.x) * a;
+		txMax = (aabb.min_.x - r.o.x) * a;
+	}
+
+	float b = 1.0 / r.d.y;
+	if (b >= 0.0) {
+		tyMin = (aabb.min_.y - r.o.y) * b;
+		tyMax = (aabb.max_.y - r.o.y) * b;
+	} else {
+		tyMin = (aabb.max_.y - r.o.y) * b;
+		tyMax = (aabb.min_.y - r.o.y) * b;
+	}
+
+	float c = 1.0 / r.d.z;
+	if (c >= 0.0) {
+		tzMin = (aabb.min_.z - r.o.z) * c;
+		tzMax = (aabb.max_.z - r.o.z) * c;
+	} else {
+		tzMin = (aabb.max_.z - r.o.z) * c;
+		tzMax = (aabb.min_.z - r.o.z) * c;
+	}
+
+	float tE, tL;
+	vec3 faceIn, faceOut;
+
+	// Largest entering
+	if (txMin > tyMin) {
+		tE = txMin;
+		faceIn = (a >= 0.0) ? vec3(-1.0, 0.0, 0.0) : vec3(1.0, 0.0, 0.0);
+	} else {
+		tE = tyMin;
+		faceIn = (b >= 0.0) ? vec3(0.0, -1, 0.0) : vec3(0.0, 1.0, 0.0);
+	}
+	if (tzMin > tE) {
+		tE = tzMin;
+		faceIn = (c >= 0.0) ? vec3(0.0, 0.0, -1) : vec3(0.0, 0.0, 1.0);
+	}
+
+	// Smallest leaving
+	if (txMax < tyMax) {
+		tL = txMax;
+		faceOut = (a >= 0.0) ? vec3(1.0, 0.0, 0.0) : vec3(-1, 0.0, 0.0);
+	} else {
+		tL = tyMax;
+		faceOut = (b >= 0.0) ? vec3(0.0, 1.0, 0.0) : vec3(0.0, -1, 0.0);
+	}
+	if (tzMax < tL) {
+		tL = tzMax;
+		faceOut = (c >= 0.0) ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 0.0, -1);
+	}
+	if (tE > tL || tL < 0.0) {
+		return false;
+	}
+
+	// Outside
+	if (tE > 0.0) {
+		if (tE < tmin || tE > tmax) {
+			return false;
+		}
+
+		rec.t = tE;
+		rec.pos = r.o + r.d * rec.t;
+		rec.normal = faceIn;
+	}
+
+	// Inside
+	else {
+		if (tL < tmin || tL > tmax) {
+			return false;
+		}
+
+		rec.t = tL; // r hits inside surface
+		rec.pos = r.o + r.d * rec.t;
+		rec.normal = faceOut;
+	}
+
+	return true;
+}
+
 #endif
