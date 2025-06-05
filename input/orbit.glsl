@@ -1,4 +1,4 @@
-//! Input - orbit + zoom
+//! Input - Orbit
 
 #iChannel0 "self"
 #iChannel0::MinFilter "Nearest"

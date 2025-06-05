@@ -8,7 +8,7 @@
 #include "scene.glsl"
 
 #iChannel0 "self"
-#iChannel1 "file://input/orbit-zoom.glsl"
+#iChannel1 "file://input/orbit.glsl"
 #iChannel1::MinFilter "Nearest"
 #iChannel1::MagFilter "Nearest"
 #iChannel2 "file://input/cam-dist-roll-fov.glsl"
