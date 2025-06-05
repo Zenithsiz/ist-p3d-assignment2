@@ -30,10 +30,10 @@ void main() {
 	}
 
 	// Fov
-	if (isKeyDown(Key_1)) {
+	if (isKeyDown(Key_V)) {
 		curFov -= 1.0;
 	}
-	if (isKeyDown(Key_3)) {
+	if (isKeyDown(Key_F)) {
 		curFov += 1.0;
 	}
 
