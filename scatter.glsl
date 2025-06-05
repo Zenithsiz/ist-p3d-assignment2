@@ -22,7 +22,7 @@ float ndfGgx(float noh, float roughness) {
 	float alpha2 = alpha * alpha;
 	float noh2 = noh * noh;
 	float b = (noh2 * (alpha2 - 1.0) + 1.0);
-	return alpha2 / (pi * b * b);
+	return alpha2 / (pi * b * b + epsilon);
 }
 
 float geometrySmithSchlick(float nov, float roughness) {
@@ -72,8 +72,7 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 
 		atten = brdfMicrofacet(-rIn.d, rScattered.d, rec.normal, rec.material);
 		return true;
-	}
-	if (rec.material.type == MT_METAL) {
+	} else if (rec.material.type == MT_METAL) {
 		atten = rec.material.specColor;
 
 		// Reflected direction
@@ -86,8 +85,7 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 		rScattered.d = normalize(reflectedDir);
 
 		return true;
-	}
-	if (rec.material.type == MT_DIELECTRIC) {
+	} else if (rec.material.type == MT_DIELECTRIC) {
 		// TODO: Is this correct? I don't think
 		//       we should assume that it's either the material or air.
 		float n1 = isInside ? rec.material.refIdx : 1.0;
@@ -121,6 +119,19 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 			rScattered.o = rec.pos - ns * epsilon;
 			rScattered.d = sinTheta * t - cosTheta * ns;
 		}
+
+		return true;
+	} else if (rec.material.type == MT_PLASTIC) {
+		// Reflected direction
+		vec3 reflectedDir = reflect(rIn.d, rec.normal);
+
+		// Fuzzy reflections
+		reflectedDir += rec.material.roughness * randomUnitVector(gSeed);
+
+		rScattered.o = rec.pos + ns * epsilon;
+		rScattered.d = normalize(reflectedDir);
+
+		atten = brdfMicrofacet(-rIn.d, rScattered.d, rec.normal, rec.material);
 
 		return true;
 	}

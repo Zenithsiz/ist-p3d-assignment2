@@ -7,6 +7,7 @@
 #define MT_DIFFUSE 0
 #define MT_METAL 1
 #define MT_DIELECTRIC 2
+#define MT_PLASTIC 3
 
 struct Material {
 	int type;
@@ -49,6 +50,16 @@ Material createDielectricMaterial(vec3 refractClr, float refIdx, float roughness
 	m.specColor = vec3(0.04);
 	m.refIdx = refIdx;
 	m.refractColor = refractClr;
+	m.roughness = roughness;
+	m.emissive = vec3(0.0);
+	return m;
+}
+
+Material createPlasticMaterial(vec3 albedo, float roughness) {
+	Material m;
+	m.type = MT_PLASTIC;
+	m.albedo = albedo;
+	m.specColor = vec3(0.04);
 	m.roughness = roughness;
 	m.emissive = vec3(0.0);
 	return m;
