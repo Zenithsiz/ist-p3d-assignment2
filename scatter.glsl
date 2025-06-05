@@ -98,7 +98,7 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 		vec3 v = -rIn.d;
 		vec3 vt = dot(v, ns) * ns - v;
 		float sinIncident = length(vt);
-		float cosIncident = -dot(rIn.d, rec.normal);
+		float cosIncident = -dot(rIn.d, ns);
 		float sinTheta = n1 / n2 * sinIncident;
 
 		float cosTheta = sqrt(1.0 - sinTheta * sinTheta);
