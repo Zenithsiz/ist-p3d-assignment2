@@ -74,7 +74,7 @@ vec3 rayColor(Camera cam, Ray r) {
 
 		// background
 		else {
-#if SCENE == 0 || SCENE == 1
+#if SCENE == 0 || SCENE == 1 || SCENE == 3
 			float t = 0.8 * (r.d.y + 1.0);
 			col += throughput * mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
 #endif
