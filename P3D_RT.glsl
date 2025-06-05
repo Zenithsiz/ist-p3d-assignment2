@@ -92,7 +92,7 @@ void main() {
 	vec3 prevLinear = toLinear(prev.xyz);
 
 	vec4 rawInputOrbitZoom = texture(iChannel1, vec2(0.0, 0.0) / iResolution.xy);
-	vec2 inputOrbitZoom = rawInputOrbitZoom.xy / iResolution.xy;
+	vec2 inputOrbitZoom = rawInputOrbitZoom.xy;
 
 	vec4 rawInputVerticalFov = texture(iChannel2, vec2(0.0, 0.0) / iResolution.xy);
 	float inputVertical = rawInputVerticalFov.x;
