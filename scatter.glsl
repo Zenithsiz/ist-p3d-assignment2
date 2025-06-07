@@ -18,26 +18,26 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 	vec3 ns = isInside ? -rec.normal : rec.normal;
 
 	if (rec.material.type == MT_DIFFUSE) {
+		// Scatter the rays in a semi-hemisphere point at the normal
 		rScattered.o = rec.pos + ns * epsilon;
-
 		rScattered.d = randomUnitVector(gSeed);
 		if (dot(rScattered.d, rec.normal) < 0.0) {
 			rScattered.d = -rScattered.d;
 		}
 
-		atten = brdfMicrofacet(-rIn.d, rScattered.d, rec.normal, rec.material);
+		// Then use only diffuse coloring, since diffusive materials have no specular
+		atten = brdfDiffuse(-rIn.d, rScattered.d, rec.normal, rec.material);
 		return true;
 	} else if (rec.material.type == MT_METAL) {
-		atten = rec.material.specColor;
-
-		// Reflected direction
+		// Reflected direction, with fuzzy reflections
 		vec3 reflectedDir = reflect(rIn.d, rec.normal);
-
-		// Fuzzy reflections
 		reflectedDir += rec.material.roughness * randomUnitVector(gSeed);
 
-		rScattered.o = rec.pos + ns * epsilon;
+		rScattered.o = rec.pos + rec.normal * epsilon;
 		rScattered.d = normalize(reflectedDir);
+
+		vec3 f;
+		atten = brdfSpecular(-rIn.d, rScattered.d, rec.normal, rec.material, f);
 
 		return true;
 	} else if (rec.material.type == MT_DIELECTRIC) {
@@ -77,16 +77,14 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 
 		return true;
 	} else if (rec.material.type == MT_PLASTIC) {
-		// Reflected direction
+		// Reflected direction with fuzzy reflections
 		vec3 reflectedDir = reflect(rIn.d, rec.normal);
-
-		// Fuzzy reflections
 		reflectedDir += rec.material.roughness * randomUnitVector(gSeed);
 
 		rScattered.o = rec.pos + ns * epsilon;
 		rScattered.d = normalize(reflectedDir);
 
-		atten = brdfMicrofacet(-rIn.d, rScattered.d, rec.normal, rec.material);
+		atten = brdf(-rIn.d, rScattered.d, rec.normal, rec.material);
 
 		return true;
 	}

@@ -11,23 +11,29 @@ float ndfGgx(float noh, float roughness) {
 	float alpha = roughness * roughness;
 	float alpha2 = alpha * alpha;
 	float noh2 = noh * noh;
-	float b = (noh2 * (alpha2 - 1.0) + 1.0);
-	return alpha2 / (pi * b * b + epsilon);
+	float b = noh2 * (alpha2 - 1.0) + 1.0;
+	return alpha2 / (pi * b * b);
 }
 
-float geometrySmithSchlick(float nov, float roughness) {
-	float alpha = roughness * roughness;
-	float k = alpha * sqrt(2.0 / pi);
-	return nov / (nov * (1.0 - k) + k + epsilon);
+float geometrySmithSchlick(float d, float roughness) {
+	float k = roughness * roughness / 2.0;
+	return d / (d * (1.0 - k) + k);
 }
 
 float geometrySmith(float nov, float nol, float roughness) {
 	return geometrySmithSchlick(nol, roughness) * geometrySmithSchlick(nov, roughness);
 }
 
-#define BRDF 3
+// Calculates the diffuse-only brdf, without any emissive or diffuse.
+vec3 brdfDiffuse(vec3 v, vec3 l, vec3 n, Material mat) {
+	return mat.albedo / pi;
+}
 
-vec3 brdfMicrofacet(vec3 v, vec3 l, vec3 n, Material mat) {
+// Calculates the specular-only brdf, without emissive or diffuse.
+//
+// Returns the `f` parameter from the schlick calculation.
+vec3 brdfSpecular(vec3 v, vec3 l, vec3 n, Material mat, out vec3 f) {
+	float lightDist = 1.0; // length(lightPos - hitPos);
 	vec3 h = normalize(v + l);
 
 	float nov = max(dot(n, v), 0.0);
@@ -35,15 +41,20 @@ vec3 brdfMicrofacet(vec3 v, vec3 l, vec3 n, Material mat) {
 	float noh = max(dot(n, h), 0.0);
 	float voh = max(dot(v, h), 0.0);
 
-	vec3 f0 = 0.16 * mat.specColor * mat.specColor;
-
-	vec3 f = schlick3(voh, f0);
-	float d = ndfGgx(noh, mat.roughness);
+	f = schlick3(voh, mat.specColor);
+	float ndf = noh > 1.0 - epsilon ? 1.0 : ndfGgx(noh, mat.roughness);
 	float g = geometrySmith(nov, nol, mat.roughness);
 
-	vec3 specColor = vec3(f * d * g) / (4.0 * max(nov, epsilon) * max(nol, epsilon));
+	// TODO: Even with ` + epsilon` here, we still get some NaNs
+	//       at some places.
+	return (f * ndf * g) / (4.0 * nov * nol + epsilon);
+}
 
-	vec3 diffColor = mat.albedo * max(dot(l, n), 0.0) * (1.0 - f) / pi;
+// Calculates the full brdf with both reflective and specular components
+vec3 brdf(vec3 v, vec3 l, vec3 n, Material mat) {
+	vec3 f;
+	vec3 diffColor = brdfDiffuse(v, l, n, mat);
+	vec3 specColor = brdfSpecular(v, l, n, mat, f);
 
-	return mat.emissive + diffColor + specColor;
+	return diffColor * (1.0 - f) + specColor;
 }

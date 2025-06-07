@@ -22,16 +22,15 @@
 #iChannel4::MagFilter "Nearest"
 
 vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
-	vec3 col = vec3(0.0, 0.0, 0.0);
+	// Start with the emissive color of the material
+	vec3 col = rec.material.emissive;
 
 	vec3 n = rec.normal;
 	vec3 hitPos = rec.pos + n * epsilon;
 
-	if (dot(r.d, n) > 0.0) {
-		return vec3(0.0);
-	}
-
+	// Then for each light
 	for (int lightIdx = 0; lightIdx < worldLights.length(); lightIdx++) {
+		// Choose a random point in the light
 		Quad light = worldLights[lightIdx];
 		vec3 lightPos = quadRandPoint(light, gSeed);
 
@@ -43,7 +42,8 @@ vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 		Ray lightRay = Ray(hitPos, l, time);
 		HitRecord lightRec;
 		if (worldHit(lightRay, 0.001, lightDist + epsilon, lightRec) && lightRec.material.emissive != vec3(0.0)) {
-			col += lightRec.material.emissive * brdfMicrofacet(r.d, l, n, rec.material);
+			float cosTheta = dot(-r.d, rec.normal);
+			col += brdfDiffuse(-r.d, l, rec.normal, rec.material) * lightRec.material.emissive * cosTheta;
 		}
 	}
 
@@ -59,17 +59,18 @@ vec3 rayColor(Camera cam, Ray r) {
 
 	for (int i = 0; i < MAX_BOUNCES; ++i) {
 		if (worldHit(r, 0.001, 10000.0, rec)) {
+			// Calculate direct lighting
 			col += directLighting(cam, r, rec) * throughput;
 
-			// calculate secondary ray and update throughput
+			// Then the secondary ray
 			Ray scatterRay;
 			vec3 atten;
 			if (!scatter(r, rec, atten, scatterRay)) {
 				break;
 			}
 
+			throughput *= atten * dot(-r.d, rec.normal);
 			r = scatterRay;
-			throughput *= atten;
 		}
 
 		// background

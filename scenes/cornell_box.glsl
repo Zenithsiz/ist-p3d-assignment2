@@ -6,7 +6,7 @@ const float wallPos = 4.0;
 const float wallHeight = 6.0;
 
 const vec3 lightSize = vec3(1.0, 0.0, 1.0) * 4.0;
-const vec3 lightOffset = vec3(wallPos, epsilon, wallPos) - lightSize / 2.0;
+const vec3 lightOffset = vec3(wallPos, 2.0 * epsilon, wallPos) - lightSize / 2.0;
 
 const Quad worldLights[] = Quad[](Quad(
 	vec3(-wallPos + lightOffset.x, wallHeight - lightOffset.y, -wallPos + lightOffset.z + lightSize.z),
@@ -131,7 +131,7 @@ bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	if (sphereHit(Sphere(vec3(2.0, 1.5, -1.5), 1.5), r, tmin, rec.t, rec)) {
 		hit = true;
-		rec.material = createMetalMaterial(vec3(0.7, 0.6, 0.5), 0.0);
+		rec.material = createMetalMaterial(vec3(0.955, 0.638, 0.538), 0.0);
 	}
 
 	return hit;
