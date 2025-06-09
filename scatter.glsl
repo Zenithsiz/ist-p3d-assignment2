@@ -31,13 +31,15 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 	} else if (rec.material.type == MT_METAL) {
 		// Reflected direction, with fuzzy reflections
 		vec3 reflectedDir = reflect(rIn.d, rec.normal);
-		reflectedDir += rec.material.roughness * randomUnitVector(gSeed);
+		float alpha = rec.material.roughness * rec.material.roughness;
+		reflectedDir += alpha * randomUnitVector(gSeed);
 
 		rScattered.o = rec.pos + rec.normal * epsilon;
 		rScattered.d = normalize(reflectedDir);
 
-		vec3 f;
-		atten = brdfSpecular(-rIn.d, rScattered.d, rec.normal, rec.material, f);
+		// Note: Ideally this should be the brdf, but because we might be a perfect mirror,
+		//       that would create infinites and NaN on the brdf, so we simply use the specular color.
+		atten = rec.material.specColor;
 
 		return true;
 	} else if (rec.material.type == MT_DIELECTRIC) {
