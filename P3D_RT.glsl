@@ -69,7 +69,8 @@ vec3 rayColor(Camera cam, Ray r) {
 				break;
 			}
 
-			throughput *= atten * dot(-r.d, rec.normal);
+			float cosTheta = dot(-r.d, rec.normal);
+			throughput *= atten * cosTheta;
 			r = scatterRay;
 		}
 
