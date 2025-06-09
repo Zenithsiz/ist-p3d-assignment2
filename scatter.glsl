@@ -63,9 +63,9 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 
 		// Reflection
 		if (hash1(gSeed) < reflectProb) {
-			vec3 reflectedDir = reflect(rIn.d, rec.normal);
+			vec3 reflectedDir = reflect(rIn.d, ns);
 
-			rScattered.o = rec.pos + rec.normal * epsilon;
+			rScattered.o = rec.pos + ns * epsilon;
 			rScattered.d = reflectedDir;
 		}
 

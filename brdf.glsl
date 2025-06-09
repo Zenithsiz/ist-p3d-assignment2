@@ -41,9 +41,11 @@ vec3 brdfSpecular(vec3 v, vec3 l, vec3 n, Material mat, out vec3 f) {
 	float noh = max(dot(n, h), 0.0);
 	float voh = max(dot(v, h), 0.0);
 
+	float roughness = max(mat.roughness, epsilon);
+
 	f = schlick3(voh, mat.specColor);
-	float ndf = noh > 1.0 - epsilon ? 1.0 : ndfGgx(noh, mat.roughness);
-	float g = geometrySmith(nov, nol, mat.roughness);
+	float ndf = noh > 1.0 - epsilon ? 1.0 : ndfGgx(noh, roughness);
+	float g = geometrySmith(nov, nol, roughness);
 
 	// TODO: Even with ` + epsilon` here, we still get some NaNs
 	//       at some places.

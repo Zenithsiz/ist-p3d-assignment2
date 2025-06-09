@@ -42,8 +42,23 @@ vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 		Ray lightRay = Ray(hitPos, l, time);
 		HitRecord lightRec;
 		if (worldHit(lightRay, 0.001, lightDist + epsilon, lightRec) && lightRec.material.emissive != vec3(0.0)) {
-			float cosTheta = dot(-r.d, rec.normal);
-			col += brdfDiffuse(-r.d, l, rec.normal, rec.material) * lightRec.material.emissive * cosTheta;
+			// TODO: Should we be multiplying by abs of cos theta here?
+			float cosTheta = abs(dot(-r.d, rec.normal));
+			bool isInside = dot(r.d, rec.normal) > 0.0;
+
+			vec3 brdfColor = vec3(0.0);
+			if (rec.material.type == MT_DIFFUSE) {
+				brdfColor = brdfDiffuse(-r.d, l, rec.normal, rec.material);
+			} else if (rec.material.type == MT_METAL) {
+				vec3 f;
+				brdfColor = brdfSpecular(-r.d, l, rec.normal, rec.material, f);
+			} else if (rec.material.type == MT_DIELECTRIC) {
+				// TODO: What do to here?
+			} else if (rec.material.type == MT_PLASTIC) {
+				brdfColor = brdf(-r.d, l, rec.normal, rec.material);
+			}
+
+			col += brdfColor * lightRec.material.emissive * cosTheta;
 		}
 	}
 
@@ -69,7 +84,8 @@ vec3 rayColor(Camera cam, Ray r) {
 				break;
 			}
 
-			float cosTheta = dot(-r.d, rec.normal);
+			// TODO: Should we be multiplying by abs of cos theta here?
+			float cosTheta = abs(dot(-r.d, rec.normal));
 			throughput *= atten * cosTheta;
 			r = scatterRay;
 		}

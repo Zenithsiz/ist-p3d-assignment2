@@ -126,7 +126,7 @@ bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	if (sphereHit(Sphere(vec3(-2.0, 1.5, -1.5), 1.5), r, tmin, rec.t, rec)) {
 		hit = true;
-		rec.material = createPlasticMaterial(vec3(0.1, 0.1, 0.9), 0.1);
+		rec.material = createDielectricMaterial(vec3(0.1, 0.1, 0.9), 1.33, 0.0);
 	}
 
 	if (sphereHit(Sphere(vec3(2.0, 1.5, -1.5), 1.5), r, tmin, rec.t, rec)) {
