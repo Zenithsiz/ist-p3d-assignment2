@@ -17,6 +17,11 @@ const Quad worldLights[] = Quad[](Quad(
 	vec3(-wallWidth / 2.0, wallHeight, -wallWidth / 2.0)
 ));
 
+const int worldLightsLen = worldLights.length();
+vec3 worldRandLight(int lightIdx, inout float seed) {
+	return quadRandPoint(worldLights[lightIdx], seed);
+}
+
 bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	bool hit = false;
 	rec.t = tmax;

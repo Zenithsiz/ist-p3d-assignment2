@@ -2,29 +2,17 @@
 
 #include "objects.glsl"
 
-const vec3 worldLightsPos[] = vec3[](vec3(-10.0, 15.0, 0.0), vec3(8.0, 15.0, 3.0), vec3(1.0, 15.0, -9.0));
-
-const float lightSize = 5.0;
-const Quad worldLights[] = Quad[](
-	Quad(
-		vec3(worldLightsPos[0].x + lightSize, worldLightsPos[0].y, worldLightsPos[0].z - lightSize),
-		vec3(worldLightsPos[0].x + lightSize, worldLightsPos[0].y, worldLightsPos[0].z + lightSize),
-		vec3(worldLightsPos[0].x - lightSize, worldLightsPos[0].y, worldLightsPos[0].z + lightSize),
-		vec3(worldLightsPos[0].x - lightSize, worldLightsPos[0].y, worldLightsPos[0].z - lightSize)
-	),
-	Quad(
-		vec3(worldLightsPos[1].x + lightSize, worldLightsPos[1].y, worldLightsPos[1].z - lightSize),
-		vec3(worldLightsPos[1].x + lightSize, worldLightsPos[1].y, worldLightsPos[1].z + lightSize),
-		vec3(worldLightsPos[1].x - lightSize, worldLightsPos[1].y, worldLightsPos[1].z + lightSize),
-		vec3(worldLightsPos[1].x - lightSize, worldLightsPos[1].y, worldLightsPos[1].z - lightSize)
-	),
-	Quad(
-		vec3(worldLightsPos[2].x + lightSize, worldLightsPos[2].y, worldLightsPos[2].z - lightSize),
-		vec3(worldLightsPos[2].x + lightSize, worldLightsPos[2].y, worldLightsPos[2].z + lightSize),
-		vec3(worldLightsPos[2].x - lightSize, worldLightsPos[2].y, worldLightsPos[2].z + lightSize),
-		vec3(worldLightsPos[2].x - lightSize, worldLightsPos[2].y, worldLightsPos[2].z - lightSize)
-	)
+const float lightSize = 3.0;
+const Sphere worldLights[] = Sphere[](
+	Sphere(vec3(-10.0, 15.0, 0.0), lightSize),
+	Sphere(vec3(8.0, 15.0, 3.0), lightSize),
+	Sphere(vec3(1.0, 15.0, -9.0), lightSize)
 );
+
+const int worldLightsLen = worldLights.length();
+vec3 worldRandLight(int lightIdx, inout float seed) {
+	return sphereRandPoint(worldLights[lightIdx], seed);
+}
 
 bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	bool hit = false;
@@ -32,7 +20,7 @@ bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	// Lights
 	for (int lightIdx = 0; lightIdx < worldLights.length(); lightIdx++) {
-		if (quadHit(worldLights[lightIdx], r, tmin, rec.t, rec)) {
+		if (sphereHit(worldLights[lightIdx], r, tmin, rec.t, rec)) {
 			hit = true;
 			rec.material = createDiffuseMaterial(vec3(0.0));
 			rec.material.emissive = vec3(1.0f, 1.0f, 1.0f);

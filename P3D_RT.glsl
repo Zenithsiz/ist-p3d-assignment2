@@ -31,10 +31,9 @@ vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 	vec3 hitPos = rec.pos + 3.0 * ns * epsilon;
 
 	// Then for each light
-	for (int lightIdx = 0; lightIdx < worldLights.length(); lightIdx++) {
+	for (int lightIdx = 0; lightIdx < worldLightsLen; lightIdx++) {
 		// Choose a random point in the light
-		Quad light = worldLights[lightIdx];
-		vec3 lightPos = quadRandPoint(light, gSeed);
+		vec3 lightPos = worldRandLight(lightIdx, gSeed);
 
 		float lightDist = length(lightPos - hitPos);
 		vec3 l = normalize(lightPos - hitPos);
