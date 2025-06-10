@@ -102,6 +102,13 @@ vec3 movingSphereCenter(MovingSphere s, float time) {
 	return center;
 }
 
+vec3 sphereRandPoint(Sphere s, inout float seed) {
+	float yaw = hash1(seed) * 2.0 * pi;
+	float pitch = hash1(seed) * 2.0 * pi;
+
+	return s.center + s.radius * vec3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch));
+}
+
 bool sphereHit(Sphere s, Ray r, float tmin, float tmax, inout HitRecord rec) {
 	vec3 offset = r.o - s.center;
 
