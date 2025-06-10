@@ -131,7 +131,7 @@ void main() {
 	gSeed = float(baseHash(floatBitsToUint(gl_FragCoord.xy))) / float(0xffffffffU) + iTime;
 
 	float camYaw = ((-inputOrbitZoom.x + 0.5) * 2.0 - 1.0) * pi;
-	float camPitch = ((-inputOrbitZoom.y + 0.5) * 2.0 - 1.0) * pi + radians(10.0);
+	float camPitch = ((-inputOrbitZoom.y + 0.5) * 2.0 - 1.0) * pi + camDefaultPosY;
 	float camRoll = inputRoll * pi;
 
 	float camDist = 10.0 + inputDist;

@@ -1,5 +1,5 @@
 
-#include "camera.glsl"
+#include "consts.glsl"
 #include "material.glsl"
 
 vec3 schlick3(float cosine, vec3 f0) {

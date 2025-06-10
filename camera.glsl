@@ -3,11 +3,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "consts.glsl"
 #include "rand.glsl"
-
-// TODO: Move these elsewhere
-const float pi = 3.14159265358979;
-const float epsilon = 0.001;
 
 struct Camera {
 	vec3 eye;
