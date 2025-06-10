@@ -55,7 +55,7 @@ bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 	if (quadHit(worldLights[0], r, tmin, rec.t, rec)) {
 		hit = true;
 		rec.material = createDiffuseMaterial(vec3(0.0));
-		rec.material.emissive = vec3(1.0, 0.9, 0.9) * 2.0;
+		rec.material.emissive = vec3(1.0, 0.9, 0.9) * 20.0;
 	}
 
 	const int numSpheres = 7;
@@ -64,7 +64,8 @@ bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		if (sphereHit(Sphere(center, 2.8), r, tmin, rec.t, rec)) {
 			hit = true;
 			float r = float(sphereIndex) / float(numSpheres - 1) * 0.1;
-			rec.material = createPlasticMaterial(vec3(0.77, 0.42, 0.36), 0.1 - r);
+			rec.material = createDielectricMaterial(vec3(0.0, 0.5, 1.0), 1.33, 0.1 - r);
+			// rec.material = createPlasticMaterial(vec3(0.77, 0.42, 0.36), 0.1 - r);
 		}
 	}
 
