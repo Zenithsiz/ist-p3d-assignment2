@@ -1,5 +1,7 @@
 //! Input - Camera distance, fov & roll
 
+#include "consts.glsl"
+
 #iChannel0 "self"
 #iChannel0::MinFilter "Nearest"
 #iChannel0::MagFilter "Nearest"
@@ -28,6 +30,7 @@ void main() {
 	if (isKeyDown(Key_2)) {
 		curDist -= 0.1;
 	}
+	curDist = max(curDist, -camDefaultDist + epsilon);
 
 	// Fov
 	if (isKeyDown(Key_Z)) {
@@ -36,6 +39,7 @@ void main() {
 	if (isKeyDown(Key_C)) {
 		curFov += 0.01;
 	}
+	curFov = clamp(curFov, -camDefaultFovY + epsilon, -camDefaultFovY + radians(180.0) - epsilon);
 
 	// Roll
 	if (isKeyDown(Key_Q)) {

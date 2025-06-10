@@ -1,5 +1,7 @@
 //! Input - depth of field
 
+#include "consts.glsl"
+
 #iChannel0 "self"
 #iChannel0::MinFilter "Nearest"
 #iChannel0::MagFilter "Nearest"
@@ -27,6 +29,7 @@ void main() {
 	if (isKeyDown(Key_Y)) {
 		curAperture += 1.0;
 	}
+	curAperture = max(curAperture, 0.0);
 
 	// Distance to focus
 	if (isKeyDown(Key_G)) {
@@ -35,6 +38,7 @@ void main() {
 	if (isKeyDown(Key_H)) {
 		curDistToFocus += 0.01;
 	}
+	curDistToFocus = max(curDistToFocus, -camDefaultDistToFocus + epsilon);
 
 	// Reset
 	if (isKeyDown(Key_R)) {
