@@ -33,7 +33,6 @@ vec3 brdfDiffuse(vec3 v, vec3 l, vec3 n, Material mat) {
 //
 // Returns the `f` parameter from the schlick calculation.
 vec3 brdfSpecular(vec3 v, vec3 l, vec3 n, Material mat, out vec3 f) {
-	float lightDist = 1.0; // length(lightPos - hitPos);
 	vec3 h = normalize(v + l);
 
 	float nov = max(dot(n, v), 0.0);
