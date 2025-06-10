@@ -57,7 +57,7 @@ vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 vec3 rayColor(Camera cam, Ray r) {
 	HitRecord rec;
 	vec3 col = vec3(0.0);
-	vec3 throughput = vec3(1.0f, 1.0f, 1.0f);
+	vec3 throughput = vec3(1.0, 1.0, 1.0);
 
 	for (int i = 0; i < MAX_BOUNCES; ++i) {
 		if (worldHit(r, 0.001, 10000.0, rec)) {
