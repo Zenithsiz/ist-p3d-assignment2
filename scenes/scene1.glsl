@@ -76,3 +76,22 @@ bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	return hit;
 }
+
+vec3 worldBackground(Ray r) {
+	float pitch = asin(r.d.y);
+	float yaw = atan(r.d.x, r.d.z);
+
+	float pitchT = pitch / (2.0 * pi) + 0.5;
+	float yawT = yaw / (2.0 * pi) + 0.5;
+
+	int numLightsX = 30;
+	float t = 1.0 / float(numLightsX);
+	vec3 color;
+	if (mod(yawT, t) / t < 0.5 && mod(pitchT, t) / t < 0.5) {
+		color = vec3(0.8, 0.3, 0.1);
+	} else {
+		color = vec3(0.2, 0.7, 0.9);
+	}
+
+	return color;
+}

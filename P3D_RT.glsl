@@ -94,28 +94,7 @@ vec3 rayColor(Camera cam, Ray r) {
 
 		// background
 		else {
-#if SCENE == 0
-			float t = 0.8 * (r.d.y + 1.0);
-			col += throughput * mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
-#elif SCENE == 1
-
-			float pitch = asin(r.d.y);
-			float yaw = atan(r.d.x, r.d.z);
-
-			float pitchT = pitch / (2.0 * pi) + 0.5;
-			float yawT = yaw / (2.0 * pi) + 0.5;
-
-			int numLightsX = 30;
-			float t = 1.0 / float(numLightsX);
-			vec3 color;
-			if (mod(yawT, t) / t < 0.5 && mod(pitchT, t) / t < 0.5) {
-				color = vec3(0.8, 0.3, 0.1);
-			} else {
-				color = vec3(0.2, 0.7, 0.9);
-			}
-
-			col += throughput * color;
-#endif
+			col += worldBackground(r) * throughput;
 			break;
 		}
 	}

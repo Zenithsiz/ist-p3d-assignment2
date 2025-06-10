@@ -114,3 +114,8 @@ bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	return hit;
 }
+
+vec3 worldBackground(Ray r) {
+	float t = 0.8 * (r.d.y + 1.0);
+	return mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+}
