@@ -27,8 +27,8 @@ void main() {
 		vec2 posDelta = (iMouse.xy - abs(iMouse.zw)) / iResolution.xy;
 		vec2 newPos = curStartPos + posDelta;
 
-		float minPosY = -0.25 + camDefaultPosY / (2.0 * pi);
-		float maxPosY = 0.25 + camDefaultPosY / (2.0 * pi);
+		float minPosY = -0.25 + camDefaultPitch / (2.0 * pi);
+		float maxPosY = 0.25 + camDefaultPitch / (2.0 * pi);
 		newPos.y = clamp(newPos.y, minPosY + epsilon, maxPosY - epsilon);
 
 		gl_FragColor.xy = newPos;

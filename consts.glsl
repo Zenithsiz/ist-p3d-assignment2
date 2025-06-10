@@ -8,7 +8,8 @@ const float pi = 3.14159265358979;
 const float epsilon = 0.001;
 
 // Camera
-const float camDefaultPosY = radians(10.0);
+const float camDefaultYaw = radians(0.0);
+const float camDefaultPitch = radians(10.0);
 const float camDefaultDist = 10.0;
 const float camDefaultFovY = radians(60.0);
 const float camDefaultDistToFocus = 1.0;
