@@ -90,6 +90,14 @@ vec3 rayColor(Camera cam, Ray r) {
 
 			throughput *= atten;
 			r = scatterRay;
+
+			// Russian roulette
+			float russianRouletteChance = (1.0 - throughput.x) * (1.0 - throughput.y) * (1.0 - throughput.z);
+			if (hash1(gSeed) < russianRouletteChance) {
+				break;
+			} else {
+				throughput *= 1.0 / (1.0 - russianRouletteChance);
+			}
 		}
 
 		// background
