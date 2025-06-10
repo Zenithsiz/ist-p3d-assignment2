@@ -3,24 +3,26 @@
 #include "objects.glsl"
 
 const vec3 worldLightsPos[] = vec3[](vec3(-10.0, 15.0, 0.0), vec3(8.0, 15.0, 3.0), vec3(1.0, 15.0, -9.0));
+
+const float lightSize = 5.0;
 const Quad worldLights[] = Quad[](
 	Quad(
-		vec3(worldLightsPos[0].x + epsilon, worldLightsPos[0].y, worldLightsPos[0].z - epsilon),
-		vec3(worldLightsPos[0].x + epsilon, worldLightsPos[0].y, worldLightsPos[0].z + epsilon),
-		vec3(worldLightsPos[0].x - epsilon, worldLightsPos[0].y, worldLightsPos[0].z + epsilon),
-		vec3(worldLightsPos[0].x - epsilon, worldLightsPos[0].y, worldLightsPos[0].z - epsilon)
+		vec3(worldLightsPos[0].x + lightSize, worldLightsPos[0].y, worldLightsPos[0].z - lightSize),
+		vec3(worldLightsPos[0].x + lightSize, worldLightsPos[0].y, worldLightsPos[0].z + lightSize),
+		vec3(worldLightsPos[0].x - lightSize, worldLightsPos[0].y, worldLightsPos[0].z + lightSize),
+		vec3(worldLightsPos[0].x - lightSize, worldLightsPos[0].y, worldLightsPos[0].z - lightSize)
 	),
 	Quad(
-		vec3(worldLightsPos[1].x + epsilon, worldLightsPos[1].y, worldLightsPos[1].z - epsilon),
-		vec3(worldLightsPos[1].x + epsilon, worldLightsPos[1].y, worldLightsPos[1].z + epsilon),
-		vec3(worldLightsPos[1].x - epsilon, worldLightsPos[1].y, worldLightsPos[1].z + epsilon),
-		vec3(worldLightsPos[1].x - epsilon, worldLightsPos[1].y, worldLightsPos[1].z - epsilon)
+		vec3(worldLightsPos[1].x + lightSize, worldLightsPos[1].y, worldLightsPos[1].z - lightSize),
+		vec3(worldLightsPos[1].x + lightSize, worldLightsPos[1].y, worldLightsPos[1].z + lightSize),
+		vec3(worldLightsPos[1].x - lightSize, worldLightsPos[1].y, worldLightsPos[1].z + lightSize),
+		vec3(worldLightsPos[1].x - lightSize, worldLightsPos[1].y, worldLightsPos[1].z - lightSize)
 	),
 	Quad(
-		vec3(worldLightsPos[2].x + epsilon, worldLightsPos[2].y, worldLightsPos[2].z - epsilon),
-		vec3(worldLightsPos[2].x + epsilon, worldLightsPos[2].y, worldLightsPos[2].z + epsilon),
-		vec3(worldLightsPos[2].x - epsilon, worldLightsPos[2].y, worldLightsPos[2].z + epsilon),
-		vec3(worldLightsPos[2].x - epsilon, worldLightsPos[2].y, worldLightsPos[2].z - epsilon)
+		vec3(worldLightsPos[2].x + lightSize, worldLightsPos[2].y, worldLightsPos[2].z - lightSize),
+		vec3(worldLightsPos[2].x + lightSize, worldLightsPos[2].y, worldLightsPos[2].z + lightSize),
+		vec3(worldLightsPos[2].x - lightSize, worldLightsPos[2].y, worldLightsPos[2].z + lightSize),
+		vec3(worldLightsPos[2].x - lightSize, worldLightsPos[2].y, worldLightsPos[2].z - lightSize)
 	)
 );
 
