@@ -52,8 +52,7 @@ bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 
 	if (sphereHit(Sphere(vec3(-4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
 		hit = true;
-		rec.material = createDiffuseMaterial(vec3(0.2, 0.95, 0.1));
-		rec.material.specColor = vec3(0.04);
+		rec.material = createPlasticMaterial(vec3(0.2, 0.95, 0.1), 0.7);
 	}
 
 	if (sphereHit(Sphere(vec3(4.0, 1.0, 0.0), 1.0), r, tmin, rec.t, rec)) {
