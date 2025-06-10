@@ -22,8 +22,10 @@
 #iChannel4::MagFilter "Nearest"
 
 vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
+	Material mat = rec.material;
+
 	// Start with the emissive color of the material
-	vec3 col = rec.material.emissive;
+	vec3 col = mat.emissive;
 
 	vec3 n = rec.normal;
 	bool isInside = dot(r.d, n) > 0.0;
@@ -44,15 +46,15 @@ vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 		HitRecord lightRec;
 		if (worldHit(lightRay, 0.001, lightDist + epsilon, lightRec) && lightRec.material.emissive != vec3(0.0)) {
 			vec3 brdfColor = vec3(0.0);
-			if (rec.material.type == MT_DIFFUSE) {
-				brdfColor = brdfDiffuse(-r.d, l, n, rec.material);
-			} else if (rec.material.type == MT_METAL) {
+			if (mat.type == MT_DIFFUSE) {
+				brdfColor = brdfDiffuse(-r.d, l, n, mat);
+			} else if (mat.type == MT_METAL) {
 				vec3 f;
-				brdfColor = brdfSpecular(-r.d, l, n, rec.material, f);
-			} else if (rec.material.type == MT_DIELECTRIC) {
+				brdfColor = brdfSpecular(-r.d, l, n, mat, f);
+			} else if (mat.type == MT_DIELECTRIC) {
 				continue;
-			} else if (rec.material.type == MT_PLASTIC) {
-				brdfColor = brdf(-r.d, l, n, rec.material);
+			} else if (mat.type == MT_PLASTIC) {
+				brdfColor = brdf(-r.d, l, n, mat);
 			}
 
 			col += brdfColor * lightRec.material.emissive;
