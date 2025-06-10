@@ -28,8 +28,8 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 			rScattered.d = -rScattered.d;
 		}
 
-		// Then use only diffuse coloring, since diffusive materials have no specular
-		atten = brdfDiffuse(-rIn.d, rScattered.d, ns, mat);
+		atten = brdf(-rIn.d, rScattered.d, ns, mat);
+
 		return true;
 	} else if (mat.type == MT_METAL) {
 		// Reflected direction, with fuzzy reflections
@@ -40,9 +40,7 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 		rScattered.o = rec.pos + ns * epsilon;
 		rScattered.d = normalize(reflectedDir);
 
-		// Note: Ideally this should be the brdf, but because we might be a perfect mirror,
-		//       that would create infinites and NaN on the brdf, so we simply use the specular color.
-		atten = mat.specColor;
+		atten = brdf(-rIn.d, rScattered.d, ns, mat);
 
 		return true;
 	} else if (mat.type == MT_DIELECTRIC) {
@@ -50,8 +48,6 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 		//       we should assume that it's either the material or air.
 		float n1 = isInside ? mat.refIdx : 1.0;
 		float n2 = isInside ? 1.0 : mat.refIdx;
-
-		atten = isInside ? exp(-mat.refractColor * rec.t) : vec3(1.0);
 
 		vec3 v = -rIn.d;
 		vec3 vt = dot(v, ns) * ns - v;
@@ -79,6 +75,8 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 			rScattered.d = sinTheta * t - cosTheta * ns;
 		}
 
+		atten = isInside ? exp(-mat.refractColor * rec.t) : vec3(1.0);
+
 		return true;
 	} else if (mat.type == MT_PLASTIC) {
 		// Reflected direction with fuzzy reflections
@@ -92,6 +90,7 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 
 		return true;
 	}
+
 	return false;
 }
 

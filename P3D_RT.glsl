@@ -45,19 +45,7 @@ vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 		Ray lightRay = Ray(hitPos, l, time);
 		HitRecord lightRec;
 		if (worldHit(lightRay, 0.001, lightDist + epsilon, lightRec) && lightRec.material.emissive != vec3(0.0)) {
-			vec3 brdfColor = vec3(0.0);
-			if (mat.type == MT_DIFFUSE) {
-				brdfColor = brdfDiffuse(-r.d, l, n, mat);
-			} else if (mat.type == MT_METAL) {
-				vec3 f;
-				brdfColor = brdfSpecular(-r.d, l, n, mat, f);
-			} else if (mat.type == MT_DIELECTRIC) {
-				continue;
-			} else if (mat.type == MT_PLASTIC) {
-				brdfColor = brdf(-r.d, l, n, mat);
-			}
-
-			col += brdfColor * lightRec.material.emissive;
+			col += brdf(-r.d, l, n, mat) * lightRec.material.emissive;
 		}
 	}
 
