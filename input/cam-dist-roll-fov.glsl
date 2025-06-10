@@ -31,10 +31,10 @@ void main() {
 
 	// Fov
 	if (isKeyDown(Key_Z)) {
-		curFov -= 1.0;
+		curFov -= 0.01;
 	}
 	if (isKeyDown(Key_C)) {
-		curFov += 1.0;
+		curFov += 0.01;
 	}
 
 	// Roll

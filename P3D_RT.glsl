@@ -134,14 +134,14 @@ void main() {
 	float camPitch = ((-inputOrbitZoom.y + 0.5) * 2.0 - 1.0) * pi + camDefaultPosY;
 	float camRoll = inputRoll * pi;
 
-	float camDist = 10.0 + inputDist;
-	vec3 camTarget = vec3(inputTarget.x, 2.0 + inputTarget.y, inputTarget.z);
+	float camDist = camDefaultDist + inputDist;
+	vec3 camTarget = camDefaultPos + vec3(inputTarget.x, inputTarget.y, inputTarget.z);
 	vec3 camPos = camTarget + camDist * vec3(sin(camYaw) * cos(camPitch), sin(camPitch), cos(camYaw) * cos(camPitch));
 	vec3 camUp = vec3(sin(camRoll), cos(camRoll), 0.0);
 
-	float fovy = radians(60.0 + inputFov);
+	float fovy = camDefaultFovY + inputFov;
 	float aperture = inputAperture;
-	float distToFocus = 1.0 + inputDistToFocus;
+	float distToFocus = camDefaultDistToFocus + inputDistToFocus;
 	float time0 = 0.0;
 	float time1 = 1.0;
 	Camera cam = createCamera(
