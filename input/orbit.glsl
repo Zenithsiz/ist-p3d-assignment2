@@ -1,11 +1,16 @@
 //! Input - Orbit
 
+#include "camera.glsl"
+
 #iChannel0 "self"
 #iChannel0::MinFilter "Nearest"
 #iChannel0::MagFilter "Nearest"
 #iKeyboard
 
 // Output: vec4(curMouse.x, curMouse.y, startMouse.x, startMouse.y)
+
+// TODO: Move this elsewhere
+const float defaultPosY = radians(10.0);
 
 void main() {
 	// Note: We try to compute only a single pixel to avoid having to
@@ -24,6 +29,10 @@ void main() {
 	if (iMouseButton.x == 1.0) {
 		vec2 posDelta = (iMouse.xy - abs(iMouse.zw)) / iResolution.xy;
 		vec2 newPos = curStartPos + posDelta;
+
+		float minPosY = -0.25 + defaultPosY / (2.0 * pi);
+		float maxPosY = 0.25 + defaultPosY / (2.0 * pi);
+		newPos.y = clamp(newPos.y, minPosY + epsilon, maxPosY - epsilon);
 
 		gl_FragColor.xy = newPos;
 		gl_FragColor.zw = curStartPos;
