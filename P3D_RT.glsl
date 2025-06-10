@@ -45,7 +45,7 @@ vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 		Ray lightRay = Ray(hitPos, l, time);
 		HitRecord lightRec;
 		if (worldHit(lightRay, 0.001, lightDist + epsilon, lightRec) && lightRec.material.emissive != vec3(0.0)) {
-			col += brdf(-r.d, l, n, mat) * lightRec.material.emissive;
+			col += brdf(-r.d, l, n, mat) * lightRec.material.emissive / (1.0 + lightDist * lightDist);
 		}
 	}
 
@@ -131,11 +131,11 @@ void main() {
 	gSeed = float(baseHash(floatBitsToUint(gl_FragCoord.xy))) / float(0xffffffffU) + iTime;
 
 	float camYaw = ((-inputOrbitZoom.x + 0.5) * 2.0 - 1.0) * pi;
-	float camPitch = ((-inputOrbitZoom.y + 0.5) * 2.0 - 1.0) * pi + radians(20.0);
+	float camPitch = ((-inputOrbitZoom.y + 0.5) * 2.0 - 1.0) * pi + radians(10.0);
 	float camRoll = inputRoll * pi;
 
 	float camDist = 10.0 + inputDist;
-	vec3 camTarget = vec3(inputTarget.x, inputTarget.y, inputTarget.z);
+	vec3 camTarget = vec3(inputTarget.x, 2.0 + inputTarget.y, inputTarget.z);
 	vec3 camPos = camTarget + camDist * vec3(sin(camYaw) * cos(camPitch), sin(camPitch), cos(camYaw) * cos(camPitch));
 	vec3 camUp = vec3(sin(camRoll), cos(camRoll), 0.0);
 

@@ -23,7 +23,7 @@ bool worldHit(Ray r, float tmin, float tmax, inout HitRecord rec) {
 		if (sphereHit(worldLights[lightIdx], r, tmin, rec.t, rec)) {
 			hit = true;
 			rec.material = createDiffuseMaterial(vec3(0.0));
-			rec.material.emissive = vec3(1.0f, 1.0f, 1.0f);
+			rec.material.emissive = vec3(1.0f, 1.0f, 1.0f) * 100.0;
 		}
 	}
 
