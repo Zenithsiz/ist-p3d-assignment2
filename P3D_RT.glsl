@@ -26,7 +26,9 @@ vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 	vec3 col = rec.material.emissive;
 
 	vec3 n = rec.normal;
-	vec3 hitPos = rec.pos + n * epsilon;
+	bool isInside = dot(r.d, n) > 0.0;
+	vec3 ns = isInside ? -n : n;
+	vec3 hitPos = rec.pos + 3.0 * ns * epsilon;
 
 	// Then for each light
 	for (int lightIdx = 0; lightIdx < worldLights.length(); lightIdx++) {
@@ -42,23 +44,19 @@ vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 		Ray lightRay = Ray(hitPos, l, time);
 		HitRecord lightRec;
 		if (worldHit(lightRay, 0.001, lightDist + epsilon, lightRec) && lightRec.material.emissive != vec3(0.0)) {
-			// TODO: Should we be multiplying by abs of cos theta here?
-			float cosTheta = abs(dot(-r.d, rec.normal));
-			bool isInside = dot(r.d, rec.normal) > 0.0;
-
 			vec3 brdfColor = vec3(0.0);
 			if (rec.material.type == MT_DIFFUSE) {
-				brdfColor = brdfDiffuse(-r.d, l, rec.normal, rec.material);
+				brdfColor = brdfDiffuse(-r.d, l, n, rec.material);
 			} else if (rec.material.type == MT_METAL) {
 				vec3 f;
-				brdfColor = brdfSpecular(-r.d, l, rec.normal, rec.material, f);
+				brdfColor = brdfSpecular(-r.d, l, n, rec.material, f);
 			} else if (rec.material.type == MT_DIELECTRIC) {
-				// TODO: What do to here?
+				continue;
 			} else if (rec.material.type == MT_PLASTIC) {
-				brdfColor = brdf(-r.d, l, rec.normal, rec.material);
+				brdfColor = brdf(-r.d, l, n, rec.material);
 			}
 
-			col += brdfColor * lightRec.material.emissive * cosTheta;
+			col += brdfColor * lightRec.material.emissive;
 		}
 	}
 
@@ -74,8 +72,13 @@ vec3 rayColor(Camera cam, Ray r) {
 
 	for (int i = 0; i < MAX_BOUNCES; ++i) {
 		if (worldHit(r, 0.001, 10000.0, rec)) {
+			vec3 n = rec.normal;
+			bool isInside = dot(r.d, n) > 0.0;
+			vec3 ns = isInside ? -n : n;
+
 			// Calculate direct lighting
-			col += directLighting(cam, r, rec) * throughput;
+			float cosTheta = dot(-r.d, ns);
+			col += directLighting(cam, r, rec) * throughput * cosTheta;
 
 			// Then the secondary ray
 			Ray scatterRay;
@@ -84,9 +87,7 @@ vec3 rayColor(Camera cam, Ray r) {
 				break;
 			}
 
-			// TODO: Should we be multiplying by abs of cos theta here?
-			float cosTheta = abs(dot(-r.d, rec.normal));
-			throughput *= atten * cosTheta;
+			throughput *= atten;
 			r = scatterRay;
 		}
 
