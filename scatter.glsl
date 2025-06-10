@@ -14,27 +14,28 @@ float schlick(float cosine, float f0) {
 }
 
 bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
-	bool isInside = dot(rIn.d, rec.normal) > 0.0;
-	vec3 ns = isInside ? -rec.normal : rec.normal;
+	vec3 n = rec.normal;
+	bool isInside = dot(rIn.d, n) > 0.0;
+	vec3 ns = isInside ? -n : n;
 
 	if (rec.material.type == MT_DIFFUSE) {
 		// Scatter the rays in a semi-hemisphere point at the normal
 		rScattered.o = rec.pos + ns * epsilon;
 		rScattered.d = randomUnitVector(gSeed);
-		if (dot(rScattered.d, rec.normal) < 0.0) {
+		if (dot(rScattered.d, ns) < 0.0) {
 			rScattered.d = -rScattered.d;
 		}
 
 		// Then use only diffuse coloring, since diffusive materials have no specular
-		atten = brdfDiffuse(-rIn.d, rScattered.d, rec.normal, rec.material);
+		atten = brdfDiffuse(-rIn.d, rScattered.d, ns, rec.material);
 		return true;
 	} else if (rec.material.type == MT_METAL) {
 		// Reflected direction, with fuzzy reflections
-		vec3 reflectedDir = reflect(rIn.d, rec.normal);
+		vec3 reflectedDir = reflect(rIn.d, ns);
 		float alpha = rec.material.roughness * rec.material.roughness;
 		reflectedDir += alpha * randomUnitVector(gSeed);
 
-		rScattered.o = rec.pos + rec.normal * epsilon;
+		rScattered.o = rec.pos + ns * epsilon;
 		rScattered.d = normalize(reflectedDir);
 
 		// Note: Ideally this should be the brdf, but because we might be a perfect mirror,
@@ -79,13 +80,13 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 		return true;
 	} else if (rec.material.type == MT_PLASTIC) {
 		// Reflected direction with fuzzy reflections
-		vec3 reflectedDir = reflect(rIn.d, rec.normal);
+		vec3 reflectedDir = reflect(rIn.d, ns);
 		reflectedDir += rec.material.roughness * randomUnitVector(gSeed);
 
 		rScattered.o = rec.pos + ns * epsilon;
 		rScattered.d = normalize(reflectedDir);
 
-		atten = brdf(-rIn.d, rScattered.d, rec.normal, rec.material);
+		atten = brdf(-rIn.d, rScattered.d, ns, rec.material);
 
 		return true;
 	}
