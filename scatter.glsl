@@ -58,7 +58,6 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 
 		float cosTheta = sqrt(1.0 - sinTheta * sinTheta);
 
-		// TODO: Is this the correct argument to pass to schlick?
 		float reflectProb = sinTheta > 1.0 ? 1.0 : schlick(cosTheta, pow((n1 - n2) / (n1 + n2), 2.0));
 
 		// Reflection
