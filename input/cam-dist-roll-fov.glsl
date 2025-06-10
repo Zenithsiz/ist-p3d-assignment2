@@ -11,8 +11,8 @@
 
 void main() {
 	// Note: We try to compute only a single pixel to avoid having to
-	//       write out the whole texture.
-	// TODO: Reduce the size of the texture to a 1x1?
+	//       write out the whole texture, since we can't make this
+	//       shader have a 1x1 resolution
 	if (gl_FragCoord.x < -1.0 || gl_FragCoord.x > 1.0 || gl_FragCoord.y < -1.0 || gl_FragCoord.y > 1.0) {
 		discard;
 	}
