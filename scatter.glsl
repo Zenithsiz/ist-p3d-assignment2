@@ -61,7 +61,10 @@ bool scatter(Ray rIn, HitRecord rec, out vec3 atten, out Ray rScattered) {
 
 		// Reflection
 		if (hash1(gSeed) < reflectProb) {
+			// Reflected direction, with fuzzy reflections
 			vec3 reflectedDir = reflect(rIn.d, ns);
+			float alpha = mat.roughness * mat.roughness;
+			reflectedDir += alpha * randomUnitVector(gSeed);
 
 			rScattered.o = rec.pos + ns * epsilon;
 			rScattered.d = reflectedDir;
