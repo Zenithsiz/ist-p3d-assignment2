@@ -45,6 +45,13 @@ vec3 directLighting(Camera cam, Ray r, HitRecord rec) {
 		Ray lightRay = Ray(hitPos, l, time);
 		HitRecord lightRec;
 		if (worldHit(lightRay, 0.001, lightDist + epsilon, lightRec) && lightRec.material.emissive != vec3(0.0)) {
+			// Note: Ideally the light should be multiplied by the probability that a random
+			//       ray would hit it, but calculating that would be too heavy, so we instead
+			//       estimate it to be proportional to 1/r², where r is the distance to the light.
+			//       To make a better estimate, we could also multiply by the area that a projection
+			//       of the light source would make on a unit sphere around us (divided by the area of a unit sphere),
+			//       but that would be a heavy operation for quads, and, for spheres, this approximation is good enough
+			//       for distant spheres, which are the only sphere types we use.
 			col += brdf(-r.d, l, n, mat) * lightRec.material.emissive / (1.0 + lightDist * lightDist);
 		}
 	}
